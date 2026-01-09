@@ -2,11 +2,11 @@ import dotenv from 'dotenv';
 
 import app from './app.js';
 import {
-  db,
+  connectDB,
   disconnectDB,
 } from './config/db.config.js';
 
-dotenv.config();
+dotenv.config(); // load env first
 
 const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -14,9 +14,8 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 /* ================= START SERVER ================= */
 const startServer = async () => {
   try {
-    /* Connect DB FIRST */
-    await db.$connect();
-    console.log("✅ Database connected successfully");
+    // 🔌 CONNECT DATABASE FIRST
+    await connectDB();
 
     const server = app.listen(PORT, () => {
       console.log(
@@ -24,11 +23,14 @@ const startServer = async () => {
       );
     });
 
-    /* Graceful shutdown */
+    /* ================= GRACEFUL SHUTDOWN ================= */
     const shutdown = async (signal) => {
-      console.log(`${signal} received. Shutting down...`);
+      console.log(`🛑 ${signal} received. Shutting down...`);
       await disconnectDB();
-      server.close(() => process.exit(0));
+      server.close(() => {
+        console.log("✅ Server closed gracefully");
+        process.exit(0);
+      });
     };
 
     process.on("SIGINT", shutdown);

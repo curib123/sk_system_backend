@@ -1,32 +1,26 @@
 import { PrismaClient } from '@prisma/client';
 
-/**
- * Prevent multiple Prisma instances in development
- * (important when using nodemon / hot reload)
- */
-const globalForPrisma = globalThis;
+const db = new PrismaClient();
 
-export const db =
-  globalForPrisma.__prisma__ ||
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "info", "warn", "error"]
-        : ["error"],
-  });
+/* ================= CONNECT DB ================= */
+const connectDB = async () => {
+  try {
+    await db.$connect();
+    console.log("✅ Database connected successfully");
+  } catch (error) {
+    console.error("❌ Failed to connect to database:", error);
+    process.exit(1);
+  }
+};
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.__prisma__ = db;
-}
-
-/**
- * Gracefully disconnect Prisma on app shutdown
- */
-export const disconnectDB = async () => {
+/* ================= DISCONNECT DB ================= */
+const disconnectDB = async () => {
   try {
     await db.$disconnect();
     console.log("🛑 Database disconnected");
-  } catch (err) {
-    console.error("❌ Error disconnecting database", err);
+  } catch (error) {
+    console.error("❌ Error disconnecting database:", error);
   }
 };
+
+export { connectDB, db, disconnectDB };
