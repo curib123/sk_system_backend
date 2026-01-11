@@ -42,3 +42,22 @@ export const login = async (req, res) => {
     });
   }
 };
+
+/* =========================
+   GET CURRENT USER
+========================= */
+export const me = async (req, res) => {
+  try {
+    const user = await getMeService(req.user.userId);
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -80,3 +80,53 @@ export const loginUser = async ({ email, password }) => {
     },
   };
 };
+
+/* =========================
+   GET CURRENT USER
+========================= */
+export const getMeService = async (userId) => {
+  const user = await db.user.findFirst({
+    where: {
+      id: userId,
+      deletedAt: null,
+    },
+    include: {
+      roles: {
+        where: { deletedAt: null },
+        include: {
+          role: {
+            include: {
+              permissions: {
+                where: { deletedAt: null },
+                include: { permission: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  if (user.status !== 'ACTIVE') {
+    throw new Error(`Account ${user.status}`);
+  }
+
+  const roles = user.roles.map(r => ({
+    id: r.role.id,
+    name: r.role.name,
+    permissions: r.role.permissions.map(p => p.permission.key),
+  }));
+
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    status: user.status,
+    roles,
+    createdAt: user.createdAt,
+  };
+};
