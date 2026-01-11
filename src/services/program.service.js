@@ -43,12 +43,69 @@ export const createProgramService = async (data) => {
 /* ======================================================
    GET ALL PROGRAMS
 ====================================================== */
-export const getAllProgramsService = async () => {
-  return db.program.findMany({
-    where: { deletedAt: null },
-    orderBy: { createdAt: 'desc' },
-  });
+/* ======================================================
+   GET ALL PROGRAMS (SEARCH, FILTER, SORT, PAGINATION)
+====================================================== */
+export const getAllProgramsService = async (query) => {
+  const {
+    q,
+    isActive,
+    startDateFrom,
+    startDateTo,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+    page = 1,
+    limit = 10,
+  } = query;
+
+  const where = {
+    deletedAt: null,
+
+    ...(isActive !== undefined && {
+      isActive: isActive === 'true',
+    }),
+
+    ...(q && {
+      OR: [
+        { code: { contains: q } },
+        { name: { contains: q } },
+        { description: { contains: q } },
+        { committeeInCharge: { contains: q } },
+        { beneficiaries: { contains: q } },
+      ],
+    }),
+
+    ...((startDateFrom || startDateTo) && {
+      startDate: {
+        ...(startDateFrom && { gte: new Date(startDateFrom) }),
+        ...(startDateTo && { lte: new Date(startDateTo) }),
+      },
+    }),
+  };
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const [data, total] = await Promise.all([
+    db.program.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip,
+      take: Number(limit),
+    }),
+    db.program.count({ where }),
+  ]);
+
+  return {
+    data,
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
+
 
 /* ======================================================
    GET PROGRAM BY ID
