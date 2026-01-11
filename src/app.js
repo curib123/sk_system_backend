@@ -3,6 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.route.js';
+import fiscalYearRoutes from './routes/fiscalYear.route.js';
 import roleRoutes from './routes/role.route.js';
 
 const app = express();
@@ -16,6 +17,8 @@ app.use(morgan("dev"));
 /* ================= ROUTES ================= */
 app.use("/api/roles", roleRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/fiscal-years', fiscalYearRoutes);
+
 
 
 export default app;
