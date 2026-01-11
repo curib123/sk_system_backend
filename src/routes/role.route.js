@@ -8,15 +8,16 @@ import {
   getRoles,
   updateRole,
 } from '../controllers/role.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post("/", createRole);
-router.get("/", getRoles);
-router.get("/:id", getRoleById);
-router.put("/:id", updateRole);
-router.delete("/:id", deleteRole);
+router.post("/", authMiddleware, createRole);
+router.get("/", authMiddleware, getRoles);
+router.get("/:id", authMiddleware, getRoleById);
+router.put("/:id", authMiddleware, updateRole);
+router.delete("/:id", authMiddleware, deleteRole);
 
-router.get("/:id/permissions", getRolePermissions);
+router.get("/:id/permissions", authMiddleware, getRolePermissions);
 
 export default router;

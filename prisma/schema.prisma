@@ -51,62 +51,51 @@ enum PermissionModule {
 //////////////////////////////
 // USERS & RBAC
 //////////////////////////////
-
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  password  String
-  fullName  String
-  status    UserStatus @default(ACTIVE)
+  id       Int        @id @default(autoincrement())
+  email    String     @unique
+  password String
+  fullName String
+  status   UserStatus @default(ACTIVE)
 
-  roles     UserRole[]
-  approvals Approval[]
-  logs      SystemLog[]
-  proofs    ProcurementProof[]
+  // ✅ SINGLE ROLE
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  approvals           Approval[]
+  logs                SystemLog[]
+  proofs              ProcurementProof[]
   procurementRequests ProcurementRequest[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model Role {
-  id          Int    @id @default(autoincrement())
-  name        String @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String?
 
-  users       UserRole[]
+  users       User[]
   permissions RolePermission[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model Permission {
-  id          Int @id @default(autoincrement())
-  key         String @unique
+  id          Int               @id @default(autoincrement())
+  key         String            @unique
   description String?
   module      PermissionModule?
 
-  roles       RolePermission[]
+  roles RolePermission[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-}
-
-model UserRole {
-  userId Int
-  roleId Int
-
-  user User @relation(fields: [userId], references: [id])
-  role Role @relation(fields: [roleId], references: [id])
-
-  createdAt DateTime @default(now())
-  deletedAt DateTime?
-
-  @@id([userId, roleId])
 }
 
 model RolePermission {
@@ -116,7 +105,7 @@ model RolePermission {
   role       Role       @relation(fields: [roleId], references: [id])
   permission Permission @relation(fields: [permissionId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 
   @@id([roleId, permissionId])
@@ -138,12 +127,12 @@ model Program {
 
   startDate DateTime
   endDate   DateTime
-  isActive  Boolean @default(true)
+  isActive  Boolean  @default(true)
 
   allocations BudgetAllocation[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -152,73 +141,73 @@ model Program {
 //////////////////////////////
 
 model FiscalYear {
-  id        Int    @id @default(autoincrement())
-  year      Int    @unique
-  isActive  Boolean @default(false)
+  id       Int     @id @default(autoincrement())
+  year     Int     @unique
+  isActive Boolean @default(false)
 
-  budgets   Budget[]
+  budgets Budget[]
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
 
 model Budget {
-  id            Int      @id @default(autoincrement())
-  fiscalYearId  Int
-  totalAmount   Decimal  @db.Decimal(15,2)
+  id           Int     @id @default(autoincrement())
+  fiscalYearId Int
+  totalAmount  Decimal @db.Decimal(15, 2)
 
-  fiscalYear    FiscalYear @relation(fields: [fiscalYearId], references: [id])
-  allocations   BudgetAllocation[]
+  fiscalYear  FiscalYear         @relation(fields: [fiscalYearId], references: [id])
+  allocations BudgetAllocation[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model BudgetClassification {
-  id          Int    @id @default(autoincrement())
-  code        String @unique
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
   name        String
   description String?
 
   allocations BudgetAllocation[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model ObjectOfExpenditure {
-  id          Int    @id @default(autoincrement())
-  code        String @unique
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
   name        String
   description String?
 
   allocations BudgetAllocation[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model BudgetAllocation {
-  id                     Int      @id @default(autoincrement())
-  budgetId               Int
-  programId              Int
-  classificationId       Int
-  objectOfExpenditureId  Int
-  allocatedAmount        Decimal  @db.Decimal(15,2)
-  usedAmount             Decimal  @db.Decimal(15,2) @default(0)
+  id                    Int     @id @default(autoincrement())
+  budgetId              Int
+  programId             Int
+  classificationId      Int
+  objectOfExpenditureId Int
+  allocatedAmount       Decimal @db.Decimal(15, 2)
+  usedAmount            Decimal @default(0) @db.Decimal(15, 2)
 
   budget         Budget               @relation(fields: [budgetId], references: [id])
   program        Program              @relation(fields: [programId], references: [id])
   classification BudgetClassification @relation(fields: [classificationId], references: [id])
-  object         ObjectOfExpenditure   @relation(fields: [objectOfExpenditureId], references: [id])
+  object         ObjectOfExpenditure  @relation(fields: [objectOfExpenditureId], references: [id])
 
   requests ProcurementRequest[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -227,67 +216,67 @@ model BudgetAllocation {
 //////////////////////////////
 
 model Vendor {
-  id        Int    @id @default(autoincrement())
-  name      String
-  address   String?
-  contact   String?
+  id      Int     @id @default(autoincrement())
+  name    String
+  address String?
+  contact String?
 
-  requests  ProcurementRequest[]
+  requests ProcurementRequest[]
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
 
 model ProcurementRequest {
-  id           Int      @id @default(autoincrement())
-  title        String
-  description  String?
-  amount       Decimal  @db.Decimal(15,2)
-  status       ProcurementStatus @default(DRAFT)
+  id          Int               @id @default(autoincrement())
+  title       String
+  description String?
+  amount      Decimal           @db.Decimal(15, 2)
+  status      ProcurementStatus @default(DRAFT)
 
   allocationId Int
   vendorId     Int?
 
-  allocation   BudgetAllocation @relation(fields: [allocationId], references: [id])
-  vendor       Vendor?          @relation(fields: [vendorId], references: [id])
+  allocation BudgetAllocation @relation(fields: [allocationId], references: [id])
+  vendor     Vendor?          @relation(fields: [vendorId], references: [id])
 
-  approvals    Approval[]
-  items        ProcurementItem[]
-  proofs       ProcurementProof[]
+  approvals Approval[]
+  items     ProcurementItem[]
+  proofs    ProcurementProof[]
 
-  createdById  Int
-  createdBy    User @relation(fields: [createdById], references: [id])
+  createdById Int
+  createdBy   User @relation(fields: [createdById], references: [id])
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model ProcurementItem {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   requestId Int
   name      String
   quantity  Int
-  unitCost  Decimal @db.Decimal(15,2)
+  unitCost  Decimal @db.Decimal(15, 2)
 
-  request   ProcurementRequest @relation(fields: [requestId], references: [id])
+  request ProcurementRequest @relation(fields: [requestId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
 
 model ProcurementProof {
-  id           Int      @id @default(autoincrement())
-  requestId    Int
-  type         String
-  fileUrl      String
-  description  String?
+  id          Int     @id @default(autoincrement())
+  requestId   Int
+  type        String
+  fileUrl     String
+  description String?
 
   uploadedById Int
-  uploadedBy   User @relation(fields: [uploadedById], references: [id])
+  uploadedBy   User               @relation(fields: [uploadedById], references: [id])
   request      ProcurementRequest @relation(fields: [requestId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
 
@@ -296,16 +285,16 @@ model ProcurementProof {
 //////////////////////////////
 
 model Approval {
-  id          Int      @id @default(autoincrement())
-  requestId   Int
-  approverId  Int
-  status      ApprovalStatus @default(PENDING)
-  remarks     String?
+  id         Int            @id @default(autoincrement())
+  requestId  Int
+  approverId Int
+  status     ApprovalStatus @default(PENDING)
+  remarks    String?
 
-  request     ProcurementRequest @relation(fields: [requestId], references: [id])
-  approver    User @relation(fields: [approverId], references: [id])
+  request  ProcurementRequest @relation(fields: [requestId], references: [id])
+  approver User               @relation(fields: [approverId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
 
@@ -314,11 +303,11 @@ model Approval {
 //////////////////////////////
 
 model SystemSetting {
-  id        Int    @id @default(autoincrement())
-  key       String @unique
-  value     String
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
 
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -327,14 +316,14 @@ model SystemSetting {
 //////////////////////////////
 
 model SystemLog {
-  id        Int      @id @default(autoincrement())
-  level     LogLevel
-  message   String
-  context   String?
+  id      Int      @id @default(autoincrement())
+  level   LogLevel
+  message String
+  context String?
 
-  userId    Int?
-  user      User? @relation(fields: [userId], references: [id])
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 }
