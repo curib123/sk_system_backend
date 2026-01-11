@@ -5,12 +5,21 @@ import * as ProgramService from '../services/program.service.js';
 ====================================================== */
 export const createProgram = async (req, res) => {
   try {
-    const program = await ProgramService.createProgramService(req.body);
+    const imageUrl = req.file
+      ? `/uploads/programs/${req.file.filename}`
+      : null;
+
+    const program = await ProgramService.createProgramService({
+      ...req.body,
+      imageUrl,
+    });
+
     res.status(201).json({ success: true, data: program });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 /* ======================================================
    GET ALL
