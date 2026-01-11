@@ -9,7 +9,7 @@ import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/register', register);
+router.post('/register', authMiddleware, register);
 router.post('/login', login);
 
 /* =========================
