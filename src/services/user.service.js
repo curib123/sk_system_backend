@@ -86,3 +86,31 @@ export const deleteUserService = async (id) => {
     data: { deletedAt: new Date() }
   });
 };
+
+
+/* ======================================================
+   TOGGLE USER STATUS
+====================================================== */
+export const toggleUserStatusService = async (id) => {
+  const user = await db.user.findFirst({
+    where: {
+      id: Number(id),
+      deletedAt: null
+    }
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  let newStatus = 'ACTIVE';
+
+  if (user.status === 'ACTIVE') newStatus = 'INACTIVE';
+  else if (user.status === 'INACTIVE') newStatus = 'ACTIVE';
+  else if (user.status === 'SUSPENDED') newStatus = 'ACTIVE';
+
+  return db.user.update({
+    where: { id: Number(id) },
+    data: { status: newStatus }
+  });
+};
