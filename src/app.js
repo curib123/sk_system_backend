@@ -3,6 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.route.js';
+import budgetRoutes from './routes/budget.route.js';
 import fiscalYearRoutes from './routes/fiscalYear.route.js';
 import roleRoutes from './routes/role.route.js';
 
@@ -18,6 +19,7 @@ app.use(morgan("dev"));
 app.use("/api/roles", roleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/fiscal-years', fiscalYearRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 
 
