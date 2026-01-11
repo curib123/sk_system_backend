@@ -9,12 +9,12 @@ import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/register', authMiddleware, register);
+router.post('/register', register);
 router.post('/login', login);
 
 /* =========================
    AUTHENTICATED
 ========================= */
-router.get('/me', me);
+router.get('/me', authMiddleware, me);
 
 export default router;

@@ -9,15 +9,19 @@ import {
 ========================= */
 export const register = async (req, res) => {
   try {
-    const user = await registerUser(req.body);
+    // create user (roleId is provided in request body)
+    const created = await registerUser(req.body);
 
-    res.status(201).json({
+    // re-fetch full user with role + permissions
+    const user = await getMeService(created.id);
+
+    return res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: user,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: err.message,
     });
@@ -29,15 +33,17 @@ export const register = async (req, res) => {
 ========================= */
 export const login = async (req, res) => {
   try {
-    const data = await loginUser(req.body);
+    const payload = req.body;
 
-    res.json({
+    const data = await loginUser(payload);
+
+    return res.status(200).json({
       success: true,
       message: 'Login successful',
       data,
     });
   } catch (err) {
-    res.status(401).json({
+    return res.status(401).json({
       success: false,
       message: err.message,
     });
@@ -49,14 +55,30 @@ export const login = async (req, res) => {
 ========================= */
 export const me = async (req, res) => {
   try {
+    // ✅ VALIDATE TOKEN PAYLOAD
+    if (!req.user || !req.user.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
     const user = await getMeService(req.user.userId);
 
-    res.json({
+    return res.status(200).json({
       success: true,
       data: user,
     });
   } catch (error) {
-    res.status(401).json({
+    const status =
+      error.message === 'User ID is required' ||
+      error.message === 'Invalid User ID' ||
+      error.message === 'User not found' ||
+      error.message.includes('Account')
+        ? 401
+        : 500;
+
+    return res.status(status).json({
       success: false,
       message: error.message,
     });

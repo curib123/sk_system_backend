@@ -8,13 +8,28 @@ import {
 /* =========================
    REGISTER USER
 ========================= */
-export const registerUser = async ({ email, password, fullName }) => {
+export const registerUser = async ({ email, password, fullName, roleId }) => {
   const exists = await db.user.findFirst({
     where: { email, deletedAt: null },
   });
 
   if (exists) {
     throw new Error('Email already exists');
+  }
+
+  if (!roleId) {
+    throw new Error('Role ID is required');
+  }
+
+  const role = await db.role.findFirst({
+    where: {
+      id: Number(roleId),
+      deletedAt: null,
+    },
+  });
+
+  if (!role) {
+    throw new Error('Invalid role ID');
   }
 
   const hashed = await hashPassword(password);
@@ -24,27 +39,36 @@ export const registerUser = async ({ email, password, fullName }) => {
       email,
       password: hashed,
       fullName,
+      roleId: role.id, // ✅ ROLE FROM REQUEST
     },
   });
 };
 
+
 /* =========================
    LOGIN USER
 ========================= */
-export const loginUser = async ({ email, password }) => {
+export const loginUser = async (payload) => {
+  // ✅ validate payload first
+  if (!payload) {
+    throw new Error('Request body is required');
+  }
+
+  if (!payload.email || !payload.password) {
+    throw new Error('Email and password are required');
+  }
+
   const user = await db.user.findFirst({
-    where: { email, deletedAt: null },
+    where: {
+      email: payload.email,
+      deletedAt: null,
+    },
     include: {
-      roles: {
-        where: { deletedAt: null },
+      role: {
         include: {
-          role: {
-            include: {
-              permissions: {
-                where: { deletedAt: null },
-                include: { permission: true },
-              },
-            },
+          permissions: {
+            where: { deletedAt: null },
+            include: { permission: true },
           },
         },
       },
@@ -52,17 +76,24 @@ export const loginUser = async ({ email, password }) => {
   });
 
   if (!user) throw new Error('Invalid credentials');
-  if (user.status !== 'ACTIVE')
+  if (user.status !== 'ACTIVE') {
     throw new Error(`Account ${user.status}`);
+  }
 
-  const isValid = await comparePassword(password, user.password);
+  const isValid = await comparePassword(
+    payload.password,
+    user.password
+  );
+
   if (!isValid) throw new Error('Invalid credentials');
 
-  const roles = user.roles.map(r => ({
-    id: r.role.id,
-    name: r.role.name,
-    permissions: r.role.permissions.map(p => p.permission.key),
-  }));
+  const role = user.role
+    ? {
+        id: user.role.id,
+        name: user.role.name,
+        permissions: user.role.permissions.map(p => p.permission.key),
+      }
+    : null;
 
   const token = generateToken({
     userId: user.id,
@@ -76,57 +107,54 @@ export const loginUser = async ({ email, password }) => {
       email: user.email,
       fullName: user.fullName,
       status: user.status,
-      roles,
+      role,
     },
   };
 };
+
 
 /* =========================
    GET CURRENT USER
 ========================= */
 export const getMeService = async (userId) => {
+  if (!userId) throw new Error('User ID is required');
+  if (isNaN(Number(userId))) throw new Error('Invalid User ID');
+
   const user = await db.user.findFirst({
     where: {
-      id: userId,
+      id: Number(userId),
       deletedAt: null,
     },
     include: {
-      roles: {
-        where: { deletedAt: null },
+      role: {
         include: {
-          role: {
-            include: {
-              permissions: {
-                where: { deletedAt: null },
-                include: { permission: true },
-              },
-            },
+          permissions: {
+            where: { deletedAt: null },
+            include: { permission: true },
           },
         },
       },
     },
   });
 
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  if (user.status !== 'ACTIVE') {
+  if (!user) throw new Error('User not found');
+  if (user.status !== 'ACTIVE')
     throw new Error(`Account ${user.status}`);
-  }
 
-  const roles = user.roles.map(r => ({
-    id: r.role.id,
-    name: r.role.name,
-    permissions: r.role.permissions.map(p => p.permission.key),
-  }));
+  const role = user.role
+    ? {
+        id: user.role.id,
+        name: user.role.name,
+        permissions: user.role.permissions.map(p => p.permission.key),
+      }
+    : null;
 
   return {
     id: user.id,
     email: user.email,
     fullName: user.fullName,
     status: user.status,
-    roles,
+    role,
     createdAt: user.createdAt,
   };
 };
