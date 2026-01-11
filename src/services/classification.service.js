@@ -51,6 +51,10 @@ export const getClassificationByIdService = async (id) => {
    UPDATE CLASSIFICATION
 ====================================================== */
 export const updateClassificationService = async (id, data) => {
+  if (!data || Object.keys(data).length === 0) {
+    throw new Error('No data provided for update');
+  }
+
   const exists = await db.budgetClassification.findFirst({
     where: { id: Number(id), deletedAt: null },
   });
@@ -61,9 +65,16 @@ export const updateClassificationService = async (id, data) => {
 
   return db.budgetClassification.update({
     where: { id: Number(id) },
-    data,
+    data: {
+      ...(data.code && { code: data.code }),
+      ...(data.name && { name: data.name }),
+      ...(data.description !== undefined && {
+        description: data.description,
+      }),
+    },
   });
 };
+
 
 /* ======================================================
    DELETE CLASSIFICATION (SOFT DELETE)
