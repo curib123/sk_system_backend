@@ -5,6 +5,7 @@ import path from 'path';
 
 import authRoutes from './routes/auth.route.js';
 import budgetRoutes from './routes/budget.route.js';
+import classificationRoutes from './routes/classification.route.js';
 import fiscalYearRoutes from './routes/fiscalYear.route.js';
 import programRoutes from './routes/program.route.js';
 import roleRoutes from './routes/role.route.js';
@@ -25,6 +26,7 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/fiscal-years', fiscalYearRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/programs', programRoutes);
+app.use('/api/classifications', classificationRoutes);
 
 /* ================= STATIC FILES ================= */
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
