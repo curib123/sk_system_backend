@@ -10,8 +10,8 @@ Name	Type	Required
 id	number	✅
 Success Response (200)
 {
-  "success": true,
-  "message": "Budget deleted successfully"
+    "success": true,
+    "message": "Budget deleted successfully"
 }
 
 Error Response (400)

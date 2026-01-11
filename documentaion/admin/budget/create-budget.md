@@ -13,15 +13,16 @@ Request Body
 
 Success Response (201)
 {
-  "success": true,
-  "message": "Total budget created successfully",
-  "data": {
-    "id": 1,
-    "fiscalYearId": 1,
-    "totalAmount": "5000000.00",
-    "createdAt": "2026-01-11T08:20:00.000Z",
-    "updatedAt": "2026-01-11T08:20:00.000Z"
-  }
+    "success": true,
+    "message": "Total budget created successfully",
+    "data": {
+        "id": 1,
+        "fiscalYearId": 1,
+        "totalAmount": "5000000",
+        "createdAt": "2026-01-11T09:54:11.788Z",
+        "updatedAt": "2026-01-11T09:54:11.788Z",
+        "deletedAt": null
+    }
 }
 
 Error Response (400)

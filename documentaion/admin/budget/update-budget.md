@@ -15,13 +15,16 @@ Request Body
 
 Success Response (200)
 {
-  "success": true,
-  "message": "Budget updated successfully",
-  "data": {
-    "id": 1,
-    "totalAmount": "7500000.00",
-    "updatedAt": "2026-01-11T09:10:00.000Z"
-  }
+    "success": true,
+    "message": "Budget updated successfully",
+    "data": {
+        "id": 1,
+        "fiscalYearId": 1,
+        "totalAmount": "7500000",
+        "createdAt": "2026-01-11T09:54:11.788Z",
+        "updatedAt": "2026-01-11T09:58:48.615Z",
+        "deletedAt": null
+    }
 }
 
 Error Response (400)
