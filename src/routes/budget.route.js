@@ -1,14 +1,21 @@
-import express from 'express';
+import { Router } from 'express';
 
-import * as budgetController from '../controllers/budget.controller.js';
+import {
+  createBudget,
+  deleteBudget,
+  getAllBudgets,
+  getBudgetById,
+  updateBudget,
+} from '../controllers/budget.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
-const router = express.Router();
+const router = Router();
 
 /* ================= TOTAL BUDGET ROUTES ================= */
-router.post('/', budgetController.createBudget);
-router.get('/', budgetController.getAllBudgets);
-router.get('/:id', budgetController.getBudgetById);
-router.put('/:id', budgetController.updateBudget);
-router.delete('/:id', budgetController.deleteBudget);
+router.post('/', authMiddleware, createBudget);
+router.get('/', authMiddleware, getAllBudgets);
+router.get('/:id', authMiddleware, getBudgetById);
+router.put('/:id', authMiddleware, updateBudget);
+router.delete('/:id', authMiddleware, deleteBudget);
 
 export default router;
