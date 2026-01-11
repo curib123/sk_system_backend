@@ -49,42 +49,43 @@ GET /api/programs?q=education&isActive=true&page=1&limit=10&sortBy=createdAt&sor
 
 Sample Success Response (200)
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "code": "PRG-001",
-      "name": "Scholarship Program",
-      "isActive": true
-    },
-    {
-      "id": 2,
-      "code": "PRG-002",
-      "name": "Health Assistance Program",
-      "isActive": false
+    "success": true,
+    "data": [
+        {
+            "id": 2,
+            "code": "PRG-002",
+            "name": "Scholarship Program",
+            "description": "Student assistance",
+            "imageUrl": "/uploads/programs/1768130283804-279830941.png",
+            "committeeInCharge": "Education Committee",
+            "beneficiaries": "College Students",
+            "startDate": "2026-01-31T00:00:00.000Z",
+            "endDate": "2026-12-01T00:00:00.000Z",
+            "isActive": true,
+            "createdAt": "2026-01-11T11:18:03.813Z",
+            "updatedAt": "2026-01-11T11:18:03.813Z",
+            "deletedAt": null
+        },
+        {
+            "id": 1,
+            "code": "PRG-001",
+            "name": "Scholarship Program",
+            "description": "Student assistance",
+            "imageUrl": "/uploads/programs/1768129579230-362227515.png",
+            "committeeInCharge": "Education Committee",
+            "beneficiaries": "College Students",
+            "startDate": "2026-01-31T00:00:00.000Z",
+            "endDate": "2026-12-01T00:00:00.000Z",
+            "isActive": true,
+            "createdAt": "2026-01-11T11:06:19.254Z",
+            "updatedAt": "2026-01-11T11:06:19.254Z",
+            "deletedAt": null
+        }
+    ],
+    "meta": {
+        "total": 2,
+        "page": 1,
+        "limit": 10,
+        "totalPages": 1
     }
-  ],
-  "meta": {
-    "total": 12,
-    "page": 1,
-    "limit": 10,
-    "totalPages": 2
-  }
-}
-
-Possible Error Responses
-
-401 – Unauthorized
-
-{
-  "success": false,
-  "message": "Unauthorized"
-}
-
-
-500 – Server Error
-
-{
-  "success": false,
-  "message": "Internal server error"
 }
