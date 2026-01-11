@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
+import path from 'path';
 
 import authRoutes from './routes/auth.route.js';
 import budgetRoutes from './routes/budget.route.js';
@@ -22,6 +23,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/fiscal-years', fiscalYearRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/programs', programRoutes);
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 
 
