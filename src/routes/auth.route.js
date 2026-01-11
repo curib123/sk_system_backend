@@ -15,6 +15,6 @@ router.post('/login', login);
 /* =========================
    AUTHENTICATED
 ========================= */
-router.get('/me', authMiddleware, me);
+router.get('/me', me);
 
 export default router;

@@ -1,4 +1,5 @@
 import {
+  getMeService,
   loginUser,
   registerUser,
 } from '../services/auth.service.js';
