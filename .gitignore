@@ -12,4 +12,9 @@ yarn-error.log*
 # OS files
 .DS_Store
 
+# Prisma generated
 /src/generated/prisma
+
+# Uploads (user-generated files)
+uploads/
+uploads/**
