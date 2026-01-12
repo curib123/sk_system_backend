@@ -8,8 +8,8 @@ DELETE /api/budget-allocations/:id
 
 Success Response (200)
 {
-  "success": true,
-  "message": "Budget allocation deleted successfully"
+    "success": true,
+    "message": "Budget allocation deleted successfully"
 }
 
 Error Response (404)

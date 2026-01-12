@@ -14,14 +14,20 @@ Request Body
 
 Success Response (200)
 {
-  "success": true,
-  "message": "Budget allocation updated successfully",
-  "data": {
-    "id": 1,
-    "allocatedAmount": "750000.00",
-    "usedAmount": "300000.00",
-    "updatedAt": "2026-01-12T01:30:00.000Z"
-  }
+    "success": true,
+    "message": "Budget allocation updated successfully",
+    "data": {
+        "id": 1,
+        "budgetId": 2,
+        "programId": 3,
+        "classificationId": 4,
+        "objectOfExpenditureId": 1,
+        "allocatedAmount": "5000",
+        "usedAmount": "0",
+        "createdAt": "2026-01-12T01:48:31.319Z",
+        "updatedAt": "2026-01-12T01:55:13.335Z",
+        "deletedAt": null
+    }
 }
 
 Error Response (400)

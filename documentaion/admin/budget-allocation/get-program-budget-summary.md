@@ -8,36 +8,50 @@ GET /api/budget-allocations/reports/program-summary
 
 Success Response (200)
 {
-  "success": true,
-  "data": [
-    {
-      "programId": 1,
-      "programCode": "PRG-001",
-      "programName": "Education Program",
-      "totalAllocated": 2000000,
-      "totalUsed": 800000,
-      "classifications": [
+    "success": true,
+    "data": [
         {
-          "classificationId": 3,
-          "classificationCode": "OOE",
-          "classificationName": "Operating Expenses",
-          "totalAllocated": 1200000,
-          "totalUsed": 500000,
-          "objects": [
-            {
-              "objectId": 4,
-              "objectCode": "SUP",
-              "objectName": "Supplies",
-              "allocatedAmount": 600000,
-              "usedAmount": 250000
-            }
-          ]
+            "programId": 2,
+            "programCode": "PRG-002",
+            "programName": "Scholarship Program",
+            "totalAllocated": 0,
+            "totalUsed": 0,
+            "classifications": []
+        },
+        {
+            "programId": 3,
+            "programCode": "PRG-003",
+            "programName": "Scholarship Program",
+            "totalAllocated": 8000,
+            "totalUsed": 0,
+            "classifications": [
+                {
+                    "classificationId": 4,
+                    "classificationCode": "P-003",
+                    "classificationName": "Personal Services",
+                    "totalAllocated": 8000,
+                    "totalUsed": 0,
+                    "objects": [
+                        {
+                            "objectId": 1,
+                            "objectCode": "OOE-001",
+                            "objectName": "Office Supplies",
+                            "allocatedAmount": 5000,
+                            "usedAmount": 0
+                        },
+                        {
+                            "objectId": 1,
+                            "objectCode": "OOE-001",
+                            "objectName": "Office Supplies",
+                            "allocatedAmount": 3000,
+                            "usedAmount": 0
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
-
 Error Response (500)
 {
   "success": false,
