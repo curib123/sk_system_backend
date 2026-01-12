@@ -159,6 +159,11 @@ model Budget {
   fiscalYear  FiscalYear         @relation(fields: [fiscalYearId], references: [id])
   allocations BudgetAllocation[]
 
+  /**
+   * ✅ ADD THIS
+   */
+  classificationLimits BudgetClassificationLimit[]
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -172,9 +177,29 @@ model BudgetClassification {
 
   allocations BudgetAllocation[]
 
+  /**
+   * ✅ ADD THIS
+   */
+  budgetLimits BudgetClassificationLimit[]
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+model BudgetClassificationLimit {
+  id               Int     @id @default(autoincrement())
+  budgetId         Int
+  classificationId Int
+  limitAmount      Decimal @db.Decimal(15, 2)
+
+  budget         Budget               @relation(fields: [budgetId], references: [id])
+  classification BudgetClassification @relation(fields: [classificationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([budgetId, classificationId])
 }
 
 model ObjectOfExpenditure {
