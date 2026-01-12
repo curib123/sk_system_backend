@@ -7,57 +7,80 @@ import {
 } from '../services/classification.service.js';
 
 /* ======================================================
-   CREATE
+   CREATE CLASSIFICATION (REQUIRED LIMIT)
 ====================================================== */
 export const createClassification = async (req, res) => {
   try {
     const data = await createClassificationService(req.body);
-    res.status(201).json({ success: true, data });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Classification created with budget limit',
+      data,
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
 /* ======================================================
-   GET ALL
+   GET ALL CLASSIFICATIONS
 ====================================================== */
 export const getClassifications = async (_req, res) => {
   try {
     const data = await getClassificationsService();
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
-/* ======================================================
-   GET BY ID
-====================================================== */
-export const getClassificationById = async (req, res) => {
-  try {
-    const data = await getClassificationByIdService(req.params.id);
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(404).json({ success: false, message: error.message });
-  }
-};
-
-/* ======================================================
-   UPDATE
-====================================================== */
-export const updateClassification = async (req, res) => {
-  try {
-    const data = await updateClassificationService(
-      req.params.id,
-      req.body
-    );
-
-    res.json({
+    return res.status(200).json({
       success: true,
       data,
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/* ======================================================
+   GET CLASSIFICATION BY ID
+====================================================== */
+export const getClassificationById = async (req, res) => {
+  try {
+    const data = await getClassificationByIdService(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/* ======================================================
+   UPDATE CLASSIFICATION + LIMIT
+====================================================== */
+export const updateClassification = async (req, res) => {
+  try {
+    const data = await updateClassificationService(
+      Number(req.params.id),
+      req.body
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Classification and limit updated successfully',
+      data,
+    });
+  } catch (error) {
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
@@ -66,13 +89,20 @@ export const updateClassification = async (req, res) => {
 
 
 /* ======================================================
-   DELETE (SOFT)
+   DELETE CLASSIFICATION (SOFT DELETE)
 ====================================================== */
 export const deleteClassification = async (req, res) => {
   try {
     await deleteClassificationService(req.params.id);
-    res.json({ success: true, message: 'Classification deleted' });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Classification deleted successfully',
+    });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
