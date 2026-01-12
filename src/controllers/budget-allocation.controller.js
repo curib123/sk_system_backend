@@ -4,7 +4,8 @@ import * as budgetAllocationService
 /* ================= CREATE ================= */
 export const createBudgetAllocation = async (req, res) => {
   try {
-    const allocation = await budgetAllocationService.createBudgetAllocation(req.body);
+    const allocation =
+      await budgetAllocationService.createBudgetAllocation(req.body);
 
     return res.status(201).json({
       success: true,
@@ -12,7 +13,7 @@ export const createBudgetAllocation = async (req, res) => {
       data: allocation,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
@@ -20,7 +21,7 @@ export const createBudgetAllocation = async (req, res) => {
 };
 
 /* ================= GET ALL ================= */
-export const getAllBudgetAllocations = async (req, res) => {
+export const getAllBudgetAllocations = async (_req, res) => {
   try {
     const data = await budgetAllocationService.getAllBudgetAllocations();
 
@@ -40,9 +41,10 @@ export const getAllBudgetAllocations = async (req, res) => {
 /* ================= GET BY ID ================= */
 export const getBudgetAllocationById = async (req, res) => {
   try {
-    const data = await budgetAllocationService.getBudgetAllocationById(
-      Number(req.params.id)
-    );
+    const data =
+      await budgetAllocationService.getBudgetAllocationById(
+        Number(req.params.id)
+      );
 
     if (!data) {
       return res.status(404).json({
@@ -56,7 +58,7 @@ export const getBudgetAllocationById = async (req, res) => {
       data,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
@@ -66,10 +68,11 @@ export const getBudgetAllocationById = async (req, res) => {
 /* ================= UPDATE ================= */
 export const updateBudgetAllocation = async (req, res) => {
   try {
-    const data = await budgetAllocationService.updateBudgetAllocation(
-      Number(req.params.id),
-      req.body
-    );
+    const data =
+      await budgetAllocationService.updateBudgetAllocation(
+        Number(req.params.id),
+        req.body
+      );
 
     return res.status(200).json({
       success: true,
@@ -77,7 +80,7 @@ export const updateBudgetAllocation = async (req, res) => {
       data,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
@@ -87,14 +90,16 @@ export const updateBudgetAllocation = async (req, res) => {
 /* ================= DELETE ================= */
 export const deleteBudgetAllocation = async (req, res) => {
   try {
-    await budgetAllocationService.deleteBudgetAllocation(Number(req.params.id));
+    await budgetAllocationService.deleteBudgetAllocation(
+      Number(req.params.id)
+    );
 
     return res.status(200).json({
       success: true,
       message: 'Budget allocation deleted successfully',
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
@@ -102,9 +107,10 @@ export const deleteBudgetAllocation = async (req, res) => {
 };
 
 /* ================= REPORT ================= */
-export const getProgramBudgetSummary = async (req, res) => {
+export const getProgramBudgetSummary = async (_req, res) => {
   try {
-    const data = await budgetAllocationService.getProgramBudgetSummary();
+    const data =
+      await budgetAllocationService.getProgramBudgetSummary();
 
     return res.status(200).json({
       success: true,

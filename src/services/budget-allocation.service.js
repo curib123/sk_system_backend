@@ -26,7 +26,7 @@ export const createBudgetAllocation = async (payload) => {
     allocatedAmount,
   } = payload;
 
-  /* Required fields */
+  /* ---------------- REQUIRED FIELDS ---------------- */
   if (
     !budgetId ||
     !programId ||
@@ -39,7 +39,7 @@ export const createBudgetAllocation = async (payload) => {
 
   assertPositiveAmount(allocatedAmount);
 
-  /* Foreign key validation */
+  /* ---------------- FK VALIDATION ---------------- */
   await assertExists(db.budget, { id: budgetId, deletedAt: null }, 'Budget');
   await assertExists(db.program, { id: programId, deletedAt: null }, 'Program');
   await assertExists(
@@ -53,6 +53,43 @@ export const createBudgetAllocation = async (payload) => {
     'Object of expenditure'
   );
 
+  /* ---------------- CLASSIFICATION LIMIT CHECK ---------------- */
+  const classificationLimit = await db.budgetClassificationLimit.findFirst({
+    where: {
+      budgetId,
+      classificationId,
+    },
+    include: {
+      budget: true,
+    },
+  });
+
+  if (!classificationLimit) {
+    throw new Error('Classification limit not found for this budget');
+  }
+
+  const allocatedSoFar = await db.budgetAllocation.aggregate({
+    where: {
+      budgetId,
+      classificationId,
+      deletedAt: null,
+    },
+    _sum: { allocatedAmount: true },
+  });
+
+  const usedAllocation =
+    Number(allocatedSoFar._sum.allocatedAmount || 0);
+
+  const remainingLimit =
+    Number(classificationLimit.limitAmount) - usedAllocation;
+
+  if (Number(allocatedAmount) > remainingLimit) {
+    throw new Error(
+      `Allocated amount exceeds remaining classification limit. Remaining: ${remainingLimit}`
+    );
+  }
+
+  /* ---------------- CREATE ---------------- */
   return db.budgetAllocation.create({
     data: {
       budgetId,
@@ -107,14 +144,52 @@ export const updateBudgetAllocation = async (id, payload) => {
     'Budget allocation'
   );
 
+  /* ---------------- ALLOCATED AMOUNT UPDATE ---------------- */
   if (payload.allocatedAmount !== undefined) {
     assertPositiveAmount(payload.allocatedAmount);
 
-    if (payload.usedAmount > payload.allocatedAmount) {
+    const classificationLimit = await db.budgetClassificationLimit.findFirst({
+      where: {
+        budgetId: existing.budgetId,
+        classificationId: existing.classificationId,
+      },
+    });
+
+    if (!classificationLimit) {
+      throw new Error('Classification limit not found for this budget');
+    }
+
+    const usedAllocations = await db.budgetAllocation.aggregate({
+      where: {
+        budgetId: existing.budgetId,
+        classificationId: existing.classificationId,
+        id: { not: id },
+        deletedAt: null,
+      },
+      _sum: { allocatedAmount: true },
+    });
+
+    const allocatedByOthers =
+      Number(usedAllocations._sum.allocatedAmount || 0);
+
+    const remainingLimit =
+      Number(classificationLimit.limitAmount) - allocatedByOthers;
+
+    if (Number(payload.allocatedAmount) > remainingLimit) {
+      throw new Error(
+        `Allocated amount exceeds remaining classification limit. Remaining: ${remainingLimit}`
+      );
+    }
+
+    if (
+      payload.usedAmount !== undefined &&
+      Number(payload.usedAmount) > Number(payload.allocatedAmount)
+    ) {
       throw new Error('Used amount cannot exceed allocated amount');
     }
   }
 
+  /* ---------------- USED AMOUNT UPDATE ---------------- */
   if (payload.usedAmount !== undefined) {
     if (Number(payload.usedAmount) < 0) {
       throw new Error('Used amount cannot be negative');
