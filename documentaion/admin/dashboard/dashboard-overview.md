@@ -17,97 +17,118 @@ Success Response (200)
   "data": {
     "fiscalYear": {
       "id": 1,
-      "year": 2025,
+      "year": 2027,
       "isActive": true
     },
 
-    "kpis": {
-      "users": [
-        { "status": "ACTIVE", "count": 15 },
-        { "status": "INACTIVE", "count": 3 },
-        { "status": "SUSPENDED", "count": 1 }
+    "users": {
+      "total": 2,
+      "byStatus": [
+        {
+          "status": "ACTIVE",
+          "_count": { "id": 2 }
+        }
       ],
-
-      "programs": {
-        "total": 12,
-        "active": 10
-      },
-
-      "budget": {
-        "totalAmount": 25000000,
-        "allocatedAmount": 20000000,
-        "usedAmount": 14500000,
-        "remainingFromAllocated": 5500000,
-        "remainingFromTotal": 10500000
-      },
-
-      "approvals": {
-        "pending": 6,
-        "approved": 18,
-        "rejected": 2
-      }
+      "byRole": [
+        {
+          "roleId": 1,
+          "_count": { "id": 1 }
+        },
+        {
+          "roleId": 6,
+          "_count": { "id": 1 }
+        }
+      ]
     },
 
-    "budgetClassificationLimits": [
+    "budget": {
+      "id": 2,
+      "total": 5000000,
+      "allocated": 8000,
+      "used": 0,
+      "remaining": 5000000,
+      "utilizationRate": "0.00"
+    },
+
+    "procurement": [
       {
-        "classificationId": 1,
-        "classification": "MOOE",
-        "limitAmount": 8000000,
-        "allocatedAmount": 6200000,
-        "usedAmount": 5100000,
-        "remaining": 1100000
+        "status": "DRAFT",
+        "_count": { "id": 1 },
+        "_sum": { "amount": 8000 }
+      },
+      {
+        "status": "SUBMITTED",
+        "_count": { "id": 0 },
+        "_sum": { "amount": 0 }
+      },
+      {
+        "status": "APPROVED",
+        "_count": { "id": 0 },
+        "_sum": { "amount": 0 }
+      },
+      {
+        "status": "COMPLETED",
+        "_count": { "id": 0 },
+        "_sum": { "amount": 0 }
       }
     ],
 
-    "procurement": {
-      "byStatus": [
-        {
-          "status": "DRAFT",
-          "count": 4,
-          "totalAmount": 120000
-        },
-        {
-          "status": "APPROVED",
-          "count": 8,
-          "totalAmount": 890000
-        }
-      ],
+    "approvals": [
+      {
+        "status": "PENDING",
+        "_count": { "id": 1 }
+      },
+      {
+        "status": "APPROVED",
+        "_count": { "id": 0 }
+      },
+      {
+        "status": "REJECTED",
+        "_count": { "id": 0 }
+      }
+    ],
 
-      "monthlyTrend": [
-        {
-          "month": "2026-01",
-          "count": 6,
-          "totalAmount": 340000
-        }
-      ]
-    },
-
-    "activity": {
-      "recentRequests": [
+    "logs": {
+      "recent": [
         {
           "id": 10,
-          "title": "Office Supplies Q1",
-          "status": "APPROVED",
-          "amount": 50000,
-          "program": "Administrative Services",
-          "createdBy": "Juan Dela Cruz",
-          "createdAt": "2026-01-11T10:20:00.000Z"
+          "level": "INFO",
+          "message": "Dashboard accessed",
+          "context": "GET /api/dashboard",
+          "createdAt": "2026-01-12T05:21:00.000Z",
+          "user": {
+            "id": 1,
+            "fullName": "System Admin"
+          }
+        },
+        {
+          "id": 9,
+          "level": "WARNING",
+          "message": "Low budget allocation detected",
+          "context": "BudgetAllocationService",
+          "createdAt": "2026-01-11T09:10:00.000Z",
+          "user": {
+            "id": 1,
+            "fullName": "System Admin"
+          }
         }
       ],
-
-      "recentLogs": [
+      "summary": [
         {
-          "id": 5,
           "level": "INFO",
-          "message": "User logged in",
-          "context": "AUTH",
-          "user": "Admin User",
-          "createdAt": "2026-01-11T11:45:00.000Z"
+          "_count": { "id": 15 }
+        },
+        {
+          "level": "WARNING",
+          "_count": { "id": 3 }
+        },
+        {
+          "level": "ERROR",
+          "_count": { "id": 0 }
         }
       ]
     }
-  },
-  "timestamp": "2026-01-12T04:15:30.000Z"
+  }
 }
 
 

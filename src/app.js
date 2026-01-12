@@ -35,6 +35,7 @@ app.use('/api/programs', programRoutes);
 app.use('/api/classifications', classificationRoutes);
 app.use('/api/objects-of-expenditure', objectOfExpenditureRoutes);
 
+/* ================= ROUTES ================= */
 app.use('/api/dashboard', dashboardRoutes);
 
 /* ================= STATIC FILES ================= */
