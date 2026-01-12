@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.route.js';
 import budgetAllocationRoutes from './routes/budget-allocation.routes.js';
 import budgetRoutes from './routes/budget.route.js';
 import classificationRoutes from './routes/classification.route.js';
+import dashboardRoutes from './routes/dashboard.route.js';
 import fiscalYearRoutes from './routes/fiscalYear.route.js';
 import objectOfExpenditureRoutes from './routes/objectOfExpenditure.route.js';
 import programRoutes from './routes/program.route.js';
@@ -33,6 +34,8 @@ app.use('/api/budget-allocations', budgetAllocationRoutes);
 app.use('/api/programs', programRoutes);
 app.use('/api/classifications', classificationRoutes);
 app.use('/api/objects-of-expenditure', objectOfExpenditureRoutes);
+
+app.use('/api/dashboard', dashboardRoutes);
 
 /* ================= STATIC FILES ================= */
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
