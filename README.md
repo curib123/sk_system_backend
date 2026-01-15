@@ -1,27 +1,26 @@
-🚀 SK System Backend
+# 🚀 SK System Backend  
+**Express + Prisma + MySQL**
 
-Express + Prisma + MySQL
+Backend API for **SK System**, built with **Express.js**, **Prisma ORM**, **MySQL**, and **JWT Authentication**.  
+Supports **Role-Based Access Control (RBAC)**, **Budgeting**, **Procurement**, **Approval Workflow**, and **System Settings**.
 
-Backend API for SK System, built with Express.js, Prisma ORM, MySQL, and JWT Authentication.
-Supports Role-Based Access Control (RBAC), Budgeting, Procurement, Approval Workflow, and System Settings.
+---
 
-🛠 Tech Stack
+## 🛠 Tech Stack
 
-Node.js (v18+)
+- Node.js (v18+)
+- Express.js
+- Prisma ORM
+- MySQL
+- JWT Authentication
+- bcrypt
+- ES Modules
 
-Express.js
+---
 
-Prisma ORM
+## 📁 Project Structure
 
-MySQL
-
-JWT Authentication
-
-bcrypt
-
-ES Modules
-
-📁 Project Structure
+```
 sk_system_backend/
 ├─ prisma/
 │  ├─ schema.prisma
@@ -41,27 +40,42 @@ sk_system_backend/
 ├─ .env
 ├─ package.json
 └─ README.md
+```
 
-✅ Prerequisites
+---
 
-Node.js v18+
+## ✅ Prerequisites
 
-MySQL v8+
+- Node.js **v18+**
+- MySQL **v8+**
+- npm or yarn
 
-npm or yarn
+---
 
-📦 Installation Guide
-1️⃣ Clone the Repository
+## 📦 Installation Guide
+
+### 1️⃣ Clone the Repository
+
+```bash
 git clone https://github.com/curib123/sk_system_backend.git
 cd sk_system_backend
+```
 
-2️⃣ Install Dependencies
+---
+
+### 2️⃣ Install Dependencies
+
+```bash
 npm install
+```
 
-3️⃣ Environment Variables
+---
 
-Create a .env file in the root directory:
+### 3️⃣ Environment Variables
 
+Create a `.env` file in the root directory:
+
+```env
 DATABASE_URL="mysql://root@localhost:3306/sk_system_db"
 PORT=3001
 NODE_ENV=development
@@ -70,172 +84,80 @@ JWT_SECRET="super_secret_jwt_key_change_this"
 JWT_EXPIRES_IN="1d"
 
 BCRYPT_SALT_ROUNDS=10
+```
 
+⚠️ **Never commit `.env` to version control**
 
-⚠️ Never commit .env to version control
+---
 
-🗄 Database Setup
-Create Database
+## 🗄 Database Setup
+
+```sql
 CREATE DATABASE sk_system_db;
+```
 
-🧬 Prisma Setup & Migration
-Generate Prisma Client
+---
+
+## 🧬 Prisma Setup & Migration
+
+```bash
 npx prisma generate
-
-Initial Migration
 npx prisma migrate dev --name init
+```
 
+---
 
-This will:
+## 🌱 Database Seeding
 
-Create all tables
+Default SUPER ADMIN is created.
 
-Apply relations
-
-Sync Prisma Client
-
-Future Migrations
-npx prisma migrate dev --name your_migration_name
-
-
-Example:
-
-npx prisma migrate dev --name add_budget_module
-
-Prisma Studio (Optional)
-npx prisma studio
-
-🌱 Database Seeding (IMPORTANT)
-
-This project includes a default SUPER ADMIN seed.
-
-What the seed creates
-
-✅ All permissions (from permission.constant.js)
-
-✅ SUPER_ADMIN role
-
-✅ All permissions assigned to SUPER_ADMIN
-
-✅ Default admin user
-
-Default Admin Account
+```
 Email: admin@system.local
 Password: Admin@12345
 Role: SUPER_ADMIN
+```
 
-
-⚠️ Change the password immediately after first login
-
-Run the Seed
+```bash
 npx prisma db seed
+```
 
+---
 
-Expected output:
+## ▶️ Running the Server
 
-🌱 Seeding Super Admin...
-✅ Super Admin seeded successfully
-
-
-The seed is idempotent — safe to run multiple times.
-
-▶️ Running the Server
-Development
+```bash
 npm run dev
+```
 
-
-Server will start at:
-
+Server:
+```
 http://localhost:3001
+```
 
-🔐 Authentication
+---
 
-JWT-based authentication
+## 🔐 Authentication
 
-Token sent via header:
-
+```
 Authorization: Bearer <token>
+```
 
-🔑 Role & Permission System (RBAC)
+---
 
-One role per user
+## 🚀 Production Notes
 
-Multiple permissions per role
+- Change default admin password
+- Use strong secrets
+- Enable rate limiting
 
-Module-based permission design
+---
 
-Permissions defined in:
+## 📌 Common Commands
 
-src/constants/permission.constant.js
-
-
-Example:
-
-{ key: 'PROCUREMENT_APPROVE', module: 'PROCUREMENT' }
-
-💰 Budget & Procurement Modules
-
-Includes:
-
-Fiscal Year
-
-Total Budget
-
-Budget Classification Limits
-
-Budget Allocation
-
-Procurement Requests
-
-Approval Workflow
-
-Proof Uploads
-
-🧠 Soft Delete Strategy
-
-Most tables support soft deletion using:
-
-deletedAt DateTime?
-
-
-Soft-deleted records are excluded at the application level.
-
-🧪 API Testing
-
-Recommended tools:
-
-Postman
-
-Insomnia
-
-Required headers:
-
-Content-Type: application/json
-Authorization: Bearer <token>
-
-🚀 Production Notes
-
-Set NODE_ENV=production
-
-Use a strong JWT_SECRET
-
-Use a production database
-
-Enable:
-
-Rate limiting
-
-Request validation
-
-Centralized logging
-
-📌 Common Commands
+```bash
 npm install
 npx prisma generate
 npx prisma migrate dev
 npx prisma db seed
 npm run dev
-
-🔐 Security Reminder
-
-❗ Delete or rotate the default admin account in production
+```
