@@ -1,33 +1,39 @@
-# sk_system_backend# 🚀 SK System Backend (Express + Prisma + MySQL)
+🚀 SK System Backend
 
-This is the backend API for **SK System**, built with **Express.js**, **Prisma ORM**, **MySQL**, and **JWT Authentication**.  
-It supports **Role-Based Access Control (RBAC)**, **Budgeting**, **Procurement**, **Approval Workflow**, and **System Settings**.
+Express + Prisma + MySQL
 
----
+Backend API for SK System, built with Express.js, Prisma ORM, MySQL, and JWT Authentication.
+Supports Role-Based Access Control (RBAC), Budgeting, Procurement, Approval Workflow, and System Settings.
 
-## 🛠 Tech Stack
+🛠 Tech Stack
 
-- Node.js
-- Express.js
-- Prisma ORM
-- MySQL
-- JWT Authentication
-- bcrypt
-- ES Modules
+Node.js (v18+)
 
----
+Express.js
 
-## 📁 Project Structure
+Prisma ORM
 
-```
+MySQL
+
+JWT Authentication
+
+bcrypt
+
+ES Modules
+
+📁 Project Structure
 sk_system_backend/
 ├─ prisma/
-│  └─ schema.prisma
+│  ├─ schema.prisma
+│  ├─ seed.js
+│  └─ prisma.config.ts
 ├─ src/
 │  ├─ controllers/
 │  ├─ services/
 │  ├─ routes/
 │  ├─ middlewares/
+│  ├─ constants/
+│  │  └─ permission.constant.js
 │  ├─ config/
 │  │  └─ db.config.js
 │  └─ app.js
@@ -35,42 +41,27 @@ sk_system_backend/
 ├─ .env
 ├─ package.json
 └─ README.md
-```
 
----
+✅ Prerequisites
 
-## ✅ Prerequisites
+Node.js v18+
 
-- Node.js (v18+ recommended)
-- MySQL (v8+)
-- npm or yarn
+MySQL v8+
 
----
+npm or yarn
 
-## 📦 Installation Guide
-
-### 1️⃣ Clone the Repository
-
-```bash
+📦 Installation Guide
+1️⃣ Clone the Repository
 git clone https://github.com/curib123/sk_system_backend.git
 cd sk_system_backend
-```
 
----
-
-### 2️⃣ Install Dependencies
-
-```bash
+2️⃣ Install Dependencies
 npm install
-```
 
----
+3️⃣ Environment Variables
 
-### 3️⃣ Environment Variables
+Create a .env file in the root directory:
 
-Create a `.env` file in the root directory:
-
-```env
 DATABASE_URL="mysql://root@localhost:3306/sk_system_db"
 PORT=3001
 NODE_ENV=development
@@ -79,146 +70,172 @@ JWT_SECRET="super_secret_jwt_key_change_this"
 JWT_EXPIRES_IN="1d"
 
 BCRYPT_SALT_ROUNDS=10
-```
 
-⚠️ Never commit `.env` to version control.
 
----
+⚠️ Never commit .env to version control
 
-## 🗄 Database Setup
-
-### Create Database
-
-```sql
+🗄 Database Setup
+Create Database
 CREATE DATABASE sk_system_db;
-```
 
----
-
-## 🧬 Prisma Migration Guide
-
-### Generate Prisma Client
-
-```bash
+🧬 Prisma Setup & Migration
+Generate Prisma Client
 npx prisma generate
-```
 
----
-
-### Initial Migration
-
-```bash
+Initial Migration
 npx prisma migrate dev --name init
-```
+
 
 This will:
-- Create tables
-- Apply relations
-- Sync Prisma client
 
----
+Create all tables
 
-### Future Migrations
+Apply relations
 
-```bash
+Sync Prisma Client
+
+Future Migrations
 npx prisma migrate dev --name your_migration_name
-```
+
 
 Example:
-```bash
+
 npx prisma migrate dev --name add_budget_module
-```
 
----
-
-### Prisma Studio (Optional)
-
-```bash
+Prisma Studio (Optional)
 npx prisma studio
-```
 
----
+🌱 Database Seeding (IMPORTANT)
 
-## ▶️ Running the Server
+This project includes a default SUPER ADMIN seed.
 
-```bash
+What the seed creates
+
+✅ All permissions (from permission.constant.js)
+
+✅ SUPER_ADMIN role
+
+✅ All permissions assigned to SUPER_ADMIN
+
+✅ Default admin user
+
+Default Admin Account
+Email: admin@system.local
+Password: Admin@12345
+Role: SUPER_ADMIN
+
+
+⚠️ Change the password immediately after first login
+
+Run the Seed
+npx prisma db seed
+
+
+Expected output:
+
+🌱 Seeding Super Admin...
+✅ Super Admin seeded successfully
+
+
+The seed is idempotent — safe to run multiple times.
+
+▶️ Running the Server
+Development
 npm run dev
-```
+
 
 Server will start at:
-```
+
 http://localhost:3001
-```
 
----
+🔐 Authentication
 
-## 🔐 Authentication
+JWT-based authentication
 
-- JWT-based authentication
-- Token sent via:
-```
+Token sent via header:
+
 Authorization: Bearer <token>
-```
 
----
+🔑 Role & Permission System (RBAC)
 
-## 🔑 Role & Permission System
+One role per user
 
-- One role per user
-- Multiple permissions per role
-- Module-based permissions
+Multiple permissions per role
 
----
+Module-based permission design
 
-## 💰 Budget & Procurement
+Permissions defined in:
+
+src/constants/permission.constant.js
+
+
+Example:
+
+{ key: 'PROCUREMENT_APPROVE', module: 'PROCUREMENT' }
+
+💰 Budget & Procurement Modules
 
 Includes:
-- Fiscal Year
-- Total Budget
-- Budget Allocation
-- Procurement Requests
-- Approval Workflow
 
----
+Fiscal Year
 
-## 🧠 Soft Delete
+Total Budget
 
-Records are soft deleted using:
-```
+Budget Classification Limits
+
+Budget Allocation
+
+Procurement Requests
+
+Approval Workflow
+
+Proof Uploads
+
+🧠 Soft Delete Strategy
+
+Most tables support soft deletion using:
+
 deletedAt DateTime?
-```
 
----
 
-## 🧪 API Testing
+Soft-deleted records are excluded at the application level.
+
+🧪 API Testing
 
 Recommended tools:
-- Postman
-- Insomnia
 
-Ensure headers:
-```
+Postman
+
+Insomnia
+
+Required headers:
+
 Content-Type: application/json
 Authorization: Bearer <token>
-```
 
----
+🚀 Production Notes
 
-## 🚀 Production Notes
+Set NODE_ENV=production
 
-- Set NODE_ENV=production
-- Use strong JWT_SECRET
-- Use production DB
-- Add rate limiting
+Use a strong JWT_SECRET
 
----
+Use a production database
 
-## 📌 Common Commands
+Enable:
 
-```bash
+Rate limiting
+
+Request validation
+
+Centralized logging
+
+📌 Common Commands
 npm install
 npx prisma generate
 npx prisma migrate dev
+npx prisma db seed
 npm run dev
-```
 
+🔐 Security Reminder
+
+❗ Delete or rotate the default admin account in production
