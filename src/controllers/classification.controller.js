@@ -7,7 +7,7 @@ import {
 } from '../services/classification.service.js';
 
 /* ======================================================
-   CREATE CLASSIFICATION (REQUIRED LIMIT)
+   CREATE CLASSIFICATION
 ====================================================== */
 export const createClassification = async (req, res) => {
   try {
@@ -40,7 +40,7 @@ export const getClassifications = async (_req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: 'Failed to fetch classifications',
     });
   }
 };
@@ -57,7 +57,10 @@ export const getClassificationById = async (req, res) => {
       data,
     });
   } catch (error) {
-    return res.status(404).json({
+    const status =
+      error.message === 'Classification not found' ? 404 : 400;
+
+    return res.status(status).json({
       success: false,
       message: error.message,
     });
@@ -70,7 +73,7 @@ export const getClassificationById = async (req, res) => {
 export const updateClassification = async (req, res) => {
   try {
     const data = await updateClassificationService(
-      Number(req.params.id),
+      req.params.id,
       req.body
     );
 
@@ -87,7 +90,6 @@ export const updateClassification = async (req, res) => {
   }
 };
 
-
 /* ======================================================
    DELETE CLASSIFICATION (SOFT DELETE)
 ====================================================== */
@@ -100,7 +102,12 @@ export const deleteClassification = async (req, res) => {
       message: 'Classification deleted successfully',
     });
   } catch (error) {
-    return res.status(400).json({
+    const status =
+      error.message === 'Classification not found'
+        ? 404
+        : 400;
+
+    return res.status(status).json({
       success: false,
       message: error.message,
     });
