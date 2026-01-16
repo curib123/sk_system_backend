@@ -55,15 +55,15 @@ export const login = async (req, res) => {
 ========================= */
 export const me = async (req, res) => {
   try {
-    // ✅ VALIDATE TOKEN PAYLOAD
-    if (!req.user || !req.user.userId) {
+    // ✅ FIX: use req.user.id
+    if (!req.user || !req.user.id) {
       return res.status(401).json({
         success: false,
         message: 'Unauthorized',
       });
     }
 
-    const user = await getMeService(req.user.userId);
+    const user = await getMeService(req.user.id);
 
     return res.status(200).json({
       success: true,
@@ -84,3 +84,4 @@ export const me = async (req, res) => {
     });
   }
 };
+

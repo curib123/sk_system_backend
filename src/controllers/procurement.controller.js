@@ -1,180 +1,131 @@
 import * as procurementService from '../services/procurement.service.js';
 
-/* ================= HELPERS ================= */
-const toNumber = (v, name = 'id') => {
-  const n = Number(v);
-  if (!Number.isFinite(n)) {
-    throw new Error(`Invalid ${name}`);
-  }
-  return n;
+/* ================= RESPONSE HELPERS ================= */
+const sendSuccess = (res, status = 200, payload = {}) => {
+  return res.status(status).json({
+    success: true,
+    ...payload,
+  });
+};
+
+const sendError = (res, error) => {
+  return res.status(error.statusCode || 400).json({
+    success: false,
+    message: error.message,
+    code: error.code || 'BAD_REQUEST',
+    details: error.details ?? null,
+  });
 };
 
 /* ================= CREATE REQUEST ================= */
 export const createRequest = async (req, res) => {
   try {
-    const userId = toNumber(req.user.id, 'userId');
+    const data = await procurementService.createRequest(
+      req.body,
+      req.user.id
+    );
 
-    const payload = {
-      title: req.body.title,
-      description: req.body.description ?? null,
-      amount: req.body.amount != null
-        ? toNumber(req.body.amount, 'amount')
-        : undefined, // service may auto-calc
-      allocationId: toNumber(req.body.allocationId, 'allocationId'),
-      vendorId: req.body.vendorId
-        ? toNumber(req.body.vendorId, 'vendorId')
-        : null,
-      items: req.body.items, // 🔥 service normalizes
-    };
-
-    const data = await procurementService.createRequest(payload, userId);
-
-    return res.status(201).json({
-      success: true,
+    return sendSuccess(res, 201, {
       message: 'Procurement request created successfully',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= UPDATE REQUEST ================= */
 export const updateRequest = async (req, res) => {
   try {
-    const id = toNumber(req.params.id, 'requestId');
+    const data = await procurementService.updateRequest(
+      req.params.id,
+      req.body
+    );
 
-    const payload = {
-      title: req.body.title,
-      description: req.body.description ?? null,
-      amount: toNumber(req.body.amount, 'amount'),
-    };
-
-    const data = await procurementService.updateRequest(id, payload);
-
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request updated successfully',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= SUBMIT REQUEST ================= */
 export const submitRequest = async (req, res) => {
   try {
-    const id = toNumber(req.params.id, 'requestId');
+    const data = await procurementService.submitRequest(req.params.id);
 
-    const data = await procurementService.submitRequest(id);
-
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request submitted',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= APPROVE REQUEST ================= */
 export const approveRequest = async (req, res) => {
   try {
-    const requestId = toNumber(req.params.id, 'requestId');
-    const approverId = toNumber(req.user.id, 'approverId');
-
     const data = await procurementService.approveRequest(
-      requestId,
-      approverId,
+      req.params.id,
+      req.user.id,
       req.body.remarks
     );
 
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request approved',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= REJECT REQUEST ================= */
 export const rejectRequest = async (req, res) => {
   try {
-    const requestId = toNumber(req.params.id, 'requestId');
-    const approverId = toNumber(req.user.id, 'approverId');
-
     const data = await procurementService.rejectRequest(
-      requestId,
-      approverId,
+      req.params.id,
+      req.user.id,
       req.body.remarks
     );
 
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request rejected',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= MARK AS PURCHASED ================= */
 export const markPurchased = async (req, res) => {
   try {
-    const id = toNumber(req.params.id, 'requestId');
+    const data = await procurementService.markPurchased(req.params.id);
 
-    const data = await procurementService.markPurchased(id);
-
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request marked as purchased',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
 /* ================= COMPLETE REQUEST ================= */
 export const completeRequest = async (req, res) => {
   try {
-    const id = toNumber(req.params.id, 'requestId');
+    const data = await procurementService.completeRequest(req.params.id);
 
-    const data = await procurementService.completeRequest(id);
-
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request completed',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
@@ -182,11 +133,15 @@ export const completeRequest = async (req, res) => {
 export const uploadProof = async (req, res) => {
   try {
     if (!req.file) {
-      throw new Error('File is required');
+      throw {
+        message: 'File is required',
+        statusCode: 400,
+        code: 'FILE_REQUIRED',
+      };
     }
 
     const payload = {
-      requestId: toNumber(req.body.requestId, 'requestId'),
+      requestId: req.body.requestId,
       type: req.body.type,
       description: req.body.description ?? null,
       fileUrl: `/uploads/procurement/${req.file.filename}`,
@@ -194,19 +149,15 @@ export const uploadProof = async (req, res) => {
 
     const data = await procurementService.uploadProof(
       payload,
-      toNumber(req.user.id, 'userId')
+      req.user.id
     );
 
-    return res.status(201).json({
-      success: true,
+    return sendSuccess(res, 201, {
       message: 'Proof uploaded successfully',
       data,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
@@ -219,56 +170,38 @@ export const getAllRequests = async (req, res) => {
         typeof req.query.status === 'string'
           ? req.query.status
           : undefined,
-      page: toNumber(req.query.page ?? 1, 'page'),
-      limit: toNumber(req.query.limit ?? 10, 'limit'),
+      page: req.query.page,
+      limit: req.query.limit,
     });
 
-    return res.json({
-      success: true,
-      ...result,
-    });
+    return sendSuccess(res, 200, result);
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
-
 
 /* ================= DELETE REQUEST ================= */
 export const deleteRequest = async (req, res) => {
   try {
-    const id = toNumber(req.params.id, 'requestId');
+    await procurementService.deleteRequest(req.params.id);
 
-    await procurementService.deleteRequest(id);
-
-    return res.json({
-      success: true,
+    return sendSuccess(res, 200, {
       message: 'Procurement request deleted successfully',
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
 
+/* ================= GET DRAFT REQUEST ================= */
 export const getDraftRequest = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const data = await procurementService.getDraftRequestById(
+      req.params.id
+    );
 
-    const data = await procurementService.getDraftRequestById(id);
-
-    res.json({
-      success: true,
-      data,
-    });
+    return sendSuccess(res, 200, { data });
   } catch (error) {
-    res.status(404).json({
-      success: false,
-      message: error.message,
-    });
+    return sendError(res, error);
   }
 };
