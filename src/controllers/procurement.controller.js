@@ -178,15 +178,26 @@ export const uploadProof = async (req, res) => {
     });
   }
 };
-
 /* ================= GET ALL REQUESTS ================= */
 export const getAllRequests = async (req, res) => {
   try {
-    const data = await procurementService.getAllRequests();
+    const {
+      q = '',
+      status,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const result = await procurementService.getAllRequests({
+      q,
+      status,
+      page: Number(page),
+      limit: Number(limit),
+    });
 
     return res.json({
       success: true,
-      data,
+      ...result,
     });
   } catch (error) {
     return res.status(500).json({

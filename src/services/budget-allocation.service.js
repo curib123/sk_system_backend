@@ -101,19 +101,114 @@ export const createBudgetAllocation = async (payload) => {
   });
 };
 
-/* ================= GET ALL ================= */
-export const getAllBudgetAllocations = async () => {
-  return db.budgetAllocation.findMany({
-    where: { deletedAt: null },
-    include: {
-      budget: true,
-      program: true,
-      classification: true,
-      object: true,
+/* ================= GET ALL (SEARCH | FILTER | PAGINATION | SORT) ================= */
+export const getAllBudgetAllocations = async (params = {}) => {
+  const {
+    search,
+    budgetId,
+    programId,
+    classificationId,
+    objectOfExpenditureId,
+    page = 1,
+    limit = 10,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+  } = params;
+
+  /* ================= SAFE PAGINATION ================= */
+  const safePage =
+    Number.isFinite(page) && page > 0 ? page : 1;
+
+  const safeLimit =
+    Number.isFinite(limit) && limit > 0 ? limit : 10;
+
+  const skip = (safePage - 1) * safeLimit;
+
+  /* ================= SAFE SORT ================= */
+  const ALLOWED_SORT_FIELDS = [
+    'createdAt',
+    'allocatedAmount',
+  ];
+
+  const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy)
+    ? sortBy
+    : 'createdAt';
+
+  const safeSortOrder =
+    sortOrder === 'asc' ? 'asc' : 'desc';
+
+  /* ================= WHERE ================= */
+  const where = {
+    deletedAt: null,
+  };
+
+  if (Number.isFinite(budgetId)) {
+    where.budgetId = budgetId;
+  }
+
+  if (Number.isFinite(programId)) {
+    where.programId = programId;
+  }
+
+  if (Number.isFinite(classificationId)) {
+    where.classificationId = classificationId;
+  }
+
+  if (Number.isFinite(objectOfExpenditureId)) {
+    where.objectOfExpenditureId = objectOfExpenditureId;
+  }
+
+  if (search && search.trim()) {
+    where.OR = [
+      { program: { name: { contains: search } } },
+      { program: { code: { contains: search } } },
+      {
+        classification: {
+          name: { contains: search },
+        },
+      },
+      {
+        classification: {
+          code: { contains: search },
+        },
+      },
+      { object: { name: { contains: search } } },
+      { object: { code: { contains: search } } },
+    ];
+  }
+
+  /* ================= QUERY ================= */
+  const [data, total] = await Promise.all([
+    db.budgetAllocation.findMany({
+      where,
+      include: {
+        budget: { include: { fiscalYear: true } },
+        program: true,
+        classification: true,
+        object: true,
+      },
+      orderBy: {
+        [safeSortBy]: safeSortOrder,
+      },
+      skip,
+      take: safeLimit,
+    }),
+
+    db.budgetAllocation.count({ where }),
+  ]);
+
+  /* ================= RESPONSE ================= */
+  return {
+    data,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages: Math.ceil(total / safeLimit),
     },
-    orderBy: { createdAt: 'desc' },
-  });
+  };
 };
+
 
 /* ================= GET BY ID ================= */
 export const getBudgetAllocationById = async (id) => {

@@ -11,6 +11,7 @@ import dashboardRoutes from './routes/dashboard.route.js';
 import fiscalYearRoutes from './routes/fiscalYear.route.js';
 import objectOfExpenditureRoutes from './routes/objectOfExpenditure.route.js';
 import permissionRoutes from './routes/permission.route.js';
+import procurementRoutes from './routes/procurement.route.js';
 import programRoutes from './routes/program.route.js';
 import roleRoutes from './routes/role.route.js';
 import userRoutes from './routes/user.route.js';
@@ -36,6 +37,7 @@ app.use('/api/programs', programRoutes);
 app.use('/api/classifications', classificationRoutes);
 app.use('/api/objects-of-expenditure', objectOfExpenditureRoutes);
 app.use('/api/permissions', permissionRoutes);
+app.use('/api/procurement', procurementRoutes);
 
 /* ================= ROUTES ================= */
 app.use('/api/dashboard', dashboardRoutes);

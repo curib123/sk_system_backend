@@ -21,22 +21,54 @@ export const createBudgetAllocation = async (req, res) => {
 };
 
 /* ================= GET ALL ================= */
-export const getAllBudgetAllocations = async (_req, res) => {
+export const getAllBudgetAllocations = async (req, res) => {
   try {
-    const data = await budgetAllocationService.getAllBudgetAllocations();
+    const {
+      search,
+      budgetId,
+      programId,
+      classificationId,
+      objectOfExpenditureId,
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    } = req.query;
+
+    const result =
+      await budgetAllocationService.getAllBudgetAllocations({
+        search: search || undefined,
+        budgetId: budgetId ? Number(budgetId) : undefined,
+        programId: programId ? Number(programId) : undefined,
+        classificationId: classificationId
+          ? Number(classificationId)
+          : undefined,
+        objectOfExpenditureId: objectOfExpenditureId
+          ? Number(objectOfExpenditureId)
+          : undefined,
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        sortBy,
+        sortOrder,
+      });
 
     return res.status(200).json({
       success: true,
-      count: data.length,
-      data,
+      data: result.data,
+      pagination: result.pagination,
     });
   } catch (error) {
+    console.error('Get Budget Allocations Error:', error);
+
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        error?.message ||
+        'Failed to fetch budget allocations',
     });
   }
 };
+
 
 /* ================= GET BY ID ================= */
 export const getBudgetAllocationById = async (req, res) => {
