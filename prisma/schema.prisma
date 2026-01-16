@@ -41,13 +41,15 @@ enum LogLevel {
 
 enum PermissionModule {
   DASHBOARD
+  BUDGET_PREPARATION
   PROCUREMENT
-  REPORT
   DATA_SETUP
-  ROLES_PERMISSION
+  PROGRAMS_MANAGEMENT
   USER_MANAGEMENT
-  SYSTEM_SETTINGS
+  ROLES_PERMISSION
 }
+
+
 
 //////////////////////////////
 // USERS & RBAC
@@ -154,7 +156,7 @@ model FiscalYear {
 
 model Budget {
   id           Int     @id @default(autoincrement())
-  fiscalYearId Int
+  fiscalYearId Int @unique
   totalAmount  Decimal @db.Decimal(15, 2)
 
   fiscalYear  FiscalYear         @relation(fields: [fiscalYearId], references: [id])

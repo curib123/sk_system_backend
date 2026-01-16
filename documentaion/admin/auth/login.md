@@ -18,34 +18,27 @@ Sample Success Response (200)
     "success": true,
     "message": "Login successful",
     "data": {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidXNlckBlbWFpbC5jb20iLCJpYXQiOjE3NjgxMTEzODIsImV4cCI6MTc2ODE5Nzc4Mn0.IP0wZ1GfIV8xyJ2YHuKsERBZ7at0uTCC6w9hxzzbTqw",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiYWRtaW5Ac3lzdGVtLmxvY2FsIiwiaWF0IjoxNzY4NTUzMDA2LCJleHAiOjE3Njg2Mzk0MDZ9.3HBNzYDYwyBH9sh6tz8CX4u4QjGzNk5qggOENnwTqII",
         "user": {
             "id": 1,
-            "email": "user@email.com",
-            "fullName": "Sample User",
+            "email": "admin@system.local",
+            "fullName": "System Super Admin",
             "status": "ACTIVE",
             "role": {
                 "id": 1,
-                "name": "Super Admin",
+                "name": "SUPER_ADMIN",
                 "permissions": [
                     "DASHBOARD_VIEW",
-                    "PROCUREMENT_CREATE",
-                    "PROCUREMENT_UPDATE",
-                    "PROCUREMENT_APPROVE",
-                    "PROCUREMENT_SOFTDELETE",
-                    "REPORT_VIEW",
-                    "DATA_SETUP_CREATE",
-                    "DATA_SETUP_UPDATE",
-                    "DATA_SETUP_SOFTDELETE",
-                    "ROLE_CREATE",
-                    "ROLE_UPDATE",
-                    "ROLE_SOFTDELETE",
-                    "ROLE_ASSIGN_PERMISSION",
-                    "USER_CREATE",
-                    "USER_UPDATE",
-                    "USER_SOFTDELETE",
-                    "USER_ASSIGN_ROLE",
-                    "SYSTEM_SETTINGS_MANAGE"
+                    "BUDGET_ALLOCATION_VIEW",
+                    "BUDGET_TOTAL_VIEW",
+                    "PROCUREMENT_REQUEST_VIEW",
+                    "PROCUREMENT_MANAGE_VIEW",
+                    "FISCAL_YEAR_VIEW",
+                    "CLASSIFICATION_VIEW",
+                    "OBJECT_EXPENDITURES_VIEW",
+                    "PROGRAMS_VIEW",
+                    "USERS_VIEW",
+                    "ROLES_VIEW"
                 ]
             }
         }

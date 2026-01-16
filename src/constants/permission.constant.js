@@ -1,26 +1,26 @@
 export const PERMISSIONS = [
+  /* ================= DASHBOARD ================= */
   { key: 'DASHBOARD_VIEW', module: 'DASHBOARD' },
 
-  { key: 'PROCUREMENT_CREATE', module: 'PROCUREMENT' },
-  { key: 'PROCUREMENT_UPDATE', module: 'PROCUREMENT' },
-  { key: 'PROCUREMENT_APPROVE', module: 'PROCUREMENT' },
-  { key: 'PROCUREMENT_SOFTDELETE', module: 'PROCUREMENT' },
+  /* ================= BUDGET PREPARATION ================= */
+  { key: 'BUDGET_ALLOCATION_VIEW', module: 'BUDGET_PREPARATION' },
+  { key: 'BUDGET_TOTAL_VIEW', module: 'BUDGET_PREPARATION' },
 
-  { key: 'REPORT_VIEW', module: 'REPORT' },
+  /* ================= PROCUREMENT ================= */
+  { key: 'PROCUREMENT_REQUEST_VIEW', module: 'PROCUREMENT' },
+  { key: 'PROCUREMENT_MANAGE_VIEW', module: 'PROCUREMENT' },
 
-  { key: 'DATA_SETUP_CREATE', module: 'DATA_SETUP' },
-  { key: 'DATA_SETUP_UPDATE', module: 'DATA_SETUP' },
-  { key: 'DATA_SETUP_SOFTDELETE', module: 'DATA_SETUP' },
+  /* ================= DATA SETUP ================= */
+  { key: 'FISCAL_YEAR_VIEW', module: 'DATA_SETUP' },
+  { key: 'CLASSIFICATION_VIEW', module: 'DATA_SETUP' },
+  { key: 'OBJECT_EXPENDITURES_VIEW', module: 'DATA_SETUP' },
 
-  { key: 'ROLE_CREATE', module: 'ROLES_PERMISSION' },
-  { key: 'ROLE_UPDATE', module: 'ROLES_PERMISSION' },
-  { key: 'ROLE_SOFTDELETE', module: 'ROLES_PERMISSION' },
-  { key: 'ROLE_ASSIGN_PERMISSION', module: 'ROLES_PERMISSION' },
+  /* ================= PROGRAMS ================= */
+  { key: 'PROGRAMS_VIEW', module: 'PROGRAMS_MANAGEMENT' },
 
-  { key: 'USER_CREATE', module: 'USER_MANAGEMENT' },
-  { key: 'USER_UPDATE', module: 'USER_MANAGEMENT' },
-  { key: 'USER_SOFTDELETE', module: 'USER_MANAGEMENT' },
-  { key: 'USER_ASSIGN_ROLE', module: 'USER_MANAGEMENT' },
+  /* ================= USER MANAGEMENT ================= */
+  { key: 'USERS_VIEW', module: 'USER_MANAGEMENT' },
 
-  { key: 'SYSTEM_SETTINGS_MANAGE', module: 'SYSTEM_SETTINGS' },
+  /* ================= ROLES & PERMISSIONS ================= */
+  { key: 'ROLES_VIEW', module: 'ROLES_PERMISSION' },
 ];
