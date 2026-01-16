@@ -1,20 +1,22 @@
 import { Router } from 'express';
 
 import {
-  createRequest,
-  updateRequest,
-  submitRequest,
   approveRequest,
-  rejectRequest,
-  markPurchased,
   completeRequest,
-  getAllRequests,
+  createRequest,
   deleteRequest,
+  getAllRequests,
+  getDraftRequest,
+  markPurchased,
+  rejectRequest,
+  submitRequest,
+  updateRequest,
   uploadProof,
 } from '../controllers/procurement.controller.js';
-
-import { uploadProofMiddleware } from '../middlewares/upload-proof.middleware.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
+import {
+  uploadProofMiddleware,
+} from '../middlewares/upload-proof.middleware.js';
 
 const router = Router();
 
@@ -83,6 +85,12 @@ router.delete(
   '/:id',
   authMiddleware,
   deleteRequest
+);
+
+router.get(
+  '/:id/draft',
+  authMiddleware,
+  getDraftRequest
 );
 
 /* =========================

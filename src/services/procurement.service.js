@@ -315,3 +315,28 @@ export const deleteRequest = async (id) => {
     data: { deletedAt: new Date() },
   });
 };
+
+/* ================= GET DRAFT REQUEST BY ID ================= */
+export const getDraftRequestById = async (id) => {
+  id = toNumber(id, 'requestId');
+
+  const request = await db.procurementRequest.findFirst({
+    where: {
+      id,
+      status: 'DRAFT',
+      deletedAt: null,
+    },
+    include: {
+      items: true,
+      allocation: true,
+      vendor: true,
+      createdBy: true,
+    },
+  });
+
+  if (!request) {
+    throw new Error('Draft procurement request not found');
+  }
+
+  return request;
+};

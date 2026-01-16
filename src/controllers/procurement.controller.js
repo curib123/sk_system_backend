@@ -250,3 +250,21 @@ export const deleteRequest = async (req, res) => {
     });
   }
 };
+
+export const getDraftRequest = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    const data = await procurementService.getDraftRequestById(id);
+
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
