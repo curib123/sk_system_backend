@@ -261,10 +261,29 @@ export const getAllRequests = async ({
   page = toNumber(page, 'page');
   limit = toNumber(limit, 'limit');
 
-  const where = { deletedAt: null };
+  const VALID_STATUSES = [
+    'DRAFT',
+    'SUBMITTED',
+    'APPROVED',
+    'REJECTED',
+    'PURCHASED',
+    'COMPLETED',
+  ];
 
-  if (q) where.title = { contains: q };
-  if (status) where.status = status;
+  const where = {
+    deletedAt: null,
+  };
+
+  if (q) {
+    where.title = { contains: q };
+  }
+
+  if (status) {
+    if (!VALID_STATUSES.includes(status)) {
+      throw new Error('Invalid request status');
+    }
+    where.status = status;
+  }
 
   const skip = (page - 1) * limit;
 

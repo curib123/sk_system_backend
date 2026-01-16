@@ -214,8 +214,11 @@ export const uploadProof = async (req, res) => {
 export const getAllRequests = async (req, res) => {
   try {
     const result = await procurementService.getAllRequests({
-      q: req.query.q ?? '',
-      status: req.query.status,
+      q: typeof req.query.q === 'string' ? req.query.q : '',
+      status:
+        typeof req.query.status === 'string'
+          ? req.query.status
+          : undefined,
       page: toNumber(req.query.page ?? 1, 'page'),
       limit: toNumber(req.query.limit ?? 10, 'limit'),
     });
@@ -225,12 +228,13 @@ export const getAllRequests = async (req, res) => {
       ...result,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 
 /* ================= DELETE REQUEST ================= */
 export const deleteRequest = async (req, res) => {
