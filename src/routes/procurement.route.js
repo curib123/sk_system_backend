@@ -1,76 +1,99 @@
 import { Router } from 'express';
 
-import * as procurementController
-  from '../controllers/procurement.controller.js';
 import {
-  uploadProofMiddleware,
-} from '../middlewares/upload-proof.middleware.js';
+  createRequest,
+  updateRequest,
+  submitRequest,
+  approveRequest,
+  rejectRequest,
+  markPurchased,
+  completeRequest,
+  getAllRequests,
+  deleteRequest,
+  uploadProof,
+} from '../controllers/procurement.controller.js';
+
+import { uploadProofMiddleware } from '../middlewares/upload-proof.middleware.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-/* ================= PROCUREMENT REQUESTS ================= */
+/* =========================
+   AUTHENTICATED ROUTES
+========================= */
 
 // Create procurement request
 router.post(
   '/',
-  procurementController.createRequest
+  authMiddleware,
+  createRequest
 );
 
 // Update procurement request (DRAFT only)
 router.put(
   '/:id',
-  procurementController.updateRequest
+  authMiddleware,
+  updateRequest
 );
 
 // Submit request
 router.patch(
   '/:id/submit',
-  procurementController.submitRequest
+  authMiddleware,
+  submitRequest
 );
 
 // Approve request
 router.patch(
   '/:id/approve',
-  procurementController.approveRequest
+  authMiddleware,
+  approveRequest
 );
 
 // Reject request
 router.patch(
   '/:id/reject',
-  procurementController.rejectRequest
+  authMiddleware,
+  rejectRequest
 );
 
 // Mark as purchased
 router.patch(
   '/:id/purchase',
-  procurementController.markPurchased
+  authMiddleware,
+  markPurchased
 );
 
 // Complete request
 router.patch(
   '/:id/complete',
-  procurementController.completeRequest
+  authMiddleware,
+  completeRequest
 );
 
 // Get all requests
 router.get(
   '/',
-  procurementController.getAllRequests
+  authMiddleware,
+  getAllRequests
 );
 
 // Soft delete request (DRAFT only)
 router.delete(
   '/:id',
-  procurementController.deleteRequest
+  authMiddleware,
+  deleteRequest
 );
 
-/* ================= FILE UPLOAD ================= */
+/* =========================
+   FILE UPLOAD (AUTH FIRST!)
+========================= */
 
-// Upload procurement proof
 router.post(
   '/upload-proof',
+  authMiddleware, // ⚠️ MUST COME BEFORE MULTER
   uploadProofMiddleware.single('file'),
-  procurementController.uploadProof
+  uploadProof
 );
 
 export default router;

@@ -4,7 +4,6 @@ export const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    // Must exist
     if (!authHeader) {
       return res.status(401).json({
         success: false,
@@ -12,7 +11,6 @@ export const authMiddleware = (req, res, next) => {
       });
     }
 
-    // Must be Bearer
     const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer' || !token) {
@@ -22,11 +20,13 @@ export const authMiddleware = (req, res, next) => {
       });
     }
 
-    // Verify token
     const decoded = verifyToken(token);
 
-    // Attach user payload to request
-    req.user = decoded;
+    // ✅ NORMALIZE USER OBJECT
+    req.user = {
+      id: decoded.userId,        // 🔥 FIX HERE
+      email: decoded.email,
+    };
 
     next();
   } catch (error) {

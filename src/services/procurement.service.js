@@ -3,7 +3,9 @@ import { db } from '../config/db.config.js';
 /* ================= HELPERS ================= */
 const toNumber = (v, name = 'id') => {
   const n = Number(v);
-  if (Number.isNaN(n)) throw new Error(`Invalid ${name}`);
+  if (!Number.isFinite(n)) {
+    throw new Error(`Invalid ${name}`);
+  }
   return n;
 };
 
@@ -12,15 +14,19 @@ const normalizeItems = (items = []) => {
 
   return items
     .filter(i => i && typeof i === 'object')
-    .map(i => ({
-      name: i.name?.trim(),
-      description: i.description ?? null,
-      quantity: Number(i.quantity) || 1,
-      unitPrice: Number(i.unitPrice) || 0,
-      totalPrice:
-        (Number(i.quantity) || 1) * (Number(i.unitPrice) || 0),
-    }))
-    .filter(i => i.name); // remove empty rows
+    .map(i => {
+      const quantity = Math.max(1, Number(i.quantity) || 1);
+      const unitCost = Math.max(0, Number(i.unitCost ?? i.unitPrice) || 0);
+
+      return {
+        name: i.name?.trim(),
+        description: i.description ?? null,
+        quantity,
+        unitCost,
+        totalPrice: quantity * unitCost,
+      };
+    })
+    .filter(i => i.name);
 };
 
 /* ================= CREATE REQUEST ================= */
@@ -28,13 +34,29 @@ export const createRequest = async (data, userId) => {
   const allocationId = toNumber(data.allocationId, 'allocationId');
   const items = normalizeItems(data.items);
 
-  return await db.procurementRequest.create({
+  if (!items.length) {
+    throw new Error('At least one procurement item is required');
+  }
+
+  // 🔒 Safer: auto-compute amount from items
+  const computedAmount = items.reduce(
+    (sum, i) => sum + i.totalPrice,
+    0
+  );
+
+  const amount = data.amount != null
+    ? toNumber(data.amount, 'amount')
+    : computedAmount;
+
+  return db.procurementRequest.create({
     data: {
       title: data.title,
       description: data.description ?? null,
-      amount: Number(data.amount),
+      amount,
       allocationId,
-      vendorId: data.vendorId ? toNumber(data.vendorId, 'vendorId') : null,
+      vendorId: data.vendorId
+        ? toNumber(data.vendorId, 'vendorId')
+        : null,
       createdById: toNumber(userId, 'userId'),
       items: {
         create: items,
@@ -49,7 +71,7 @@ export const createRequest = async (data, userId) => {
 
 /* ================= UPDATE REQUEST ================= */
 export const updateRequest = async (id, data) => {
-  id = toNumber(id);
+  id = toNumber(id, 'requestId');
 
   const request = await db.procurementRequest.findFirst({
     where: { id, deletedAt: null },
@@ -60,19 +82,19 @@ export const updateRequest = async (id, data) => {
     throw new Error('Only draft requests can be updated');
   }
 
-  return await db.procurementRequest.update({
+  return db.procurementRequest.update({
     where: { id },
     data: {
       title: data.title,
       description: data.description ?? null,
-      amount: Number(data.amount),
+      amount: toNumber(data.amount, 'amount'),
     },
   });
 };
 
 /* ================= SUBMIT REQUEST ================= */
 export const submitRequest = async (id) => {
-  id = toNumber(id);
+  id = toNumber(id, 'requestId');
 
   const request = await db.procurementRequest.findFirst({
     where: { id, deletedAt: null },
@@ -83,7 +105,7 @@ export const submitRequest = async (id) => {
     throw new Error('Only draft requests can be submitted');
   }
 
-  return await db.procurementRequest.update({
+  return db.procurementRequest.update({
     where: { id },
     data: { status: 'SUBMITTED' },
   });
@@ -91,10 +113,10 @@ export const submitRequest = async (id) => {
 
 /* ================= APPROVE REQUEST ================= */
 export const approveRequest = async (requestId, approverId, remarks) => {
-  requestId = toNumber(requestId);
-  approverId = toNumber(approverId);
+  requestId = toNumber(requestId, 'requestId');
+  approverId = toNumber(approverId, 'approverId');
 
-  return await db.$transaction(async (tx) => {
+  return db.$transaction(async (tx) => {
     const request = await tx.procurementRequest.findFirst({
       where: { id: requestId, deletedAt: null },
       include: { allocation: true },
@@ -106,7 +128,8 @@ export const approveRequest = async (requestId, approverId, remarks) => {
     }
 
     const remaining =
-      request.allocation.allocatedAmount - request.allocation.usedAmount;
+      request.allocation.allocatedAmount -
+      request.allocation.usedAmount;
 
     if (request.amount > remaining) {
       throw new Error('Insufficient budget allocation');
@@ -121,7 +144,7 @@ export const approveRequest = async (requestId, approverId, remarks) => {
       },
     });
 
-    return await tx.procurementRequest.update({
+    return tx.procurementRequest.update({
       where: { id: requestId },
       data: { status: 'APPROVED' },
     });
@@ -130,10 +153,10 @@ export const approveRequest = async (requestId, approverId, remarks) => {
 
 /* ================= REJECT REQUEST ================= */
 export const rejectRequest = async (requestId, approverId, remarks) => {
-  requestId = toNumber(requestId);
-  approverId = toNumber(approverId);
+  requestId = toNumber(requestId, 'requestId');
+  approverId = toNumber(approverId, 'approverId');
 
-  return await db.$transaction(async (tx) => {
+  return db.$transaction(async (tx) => {
     const request = await tx.procurementRequest.findFirst({
       where: { id: requestId, deletedAt: null },
     });
@@ -152,7 +175,7 @@ export const rejectRequest = async (requestId, approverId, remarks) => {
       },
     });
 
-    return await tx.procurementRequest.update({
+    return tx.procurementRequest.update({
       where: { id: requestId },
       data: { status: 'REJECTED' },
     });
@@ -161,7 +184,7 @@ export const rejectRequest = async (requestId, approverId, remarks) => {
 
 /* ================= MARK AS PURCHASED ================= */
 export const markPurchased = async (requestId) => {
-  requestId = toNumber(requestId);
+  requestId = toNumber(requestId, 'requestId');
 
   const request = await db.procurementRequest.findFirst({
     where: { id: requestId, deletedAt: null },
@@ -172,7 +195,7 @@ export const markPurchased = async (requestId) => {
     throw new Error('Only approved requests can be marked as purchased');
   }
 
-  return await db.procurementRequest.update({
+  return db.procurementRequest.update({
     where: { id: requestId },
     data: { status: 'PURCHASED' },
   });
@@ -180,9 +203,9 @@ export const markPurchased = async (requestId) => {
 
 /* ================= COMPLETE REQUEST ================= */
 export const completeRequest = async (requestId) => {
-  requestId = toNumber(requestId);
+  requestId = toNumber(requestId, 'requestId');
 
-  return await db.$transaction(async (tx) => {
+  return db.$transaction(async (tx) => {
     const request = await tx.procurementRequest.findFirst({
       where: { id: requestId, deletedAt: null },
       include: { allocation: true },
@@ -200,7 +223,7 @@ export const completeRequest = async (requestId) => {
       },
     });
 
-    return await tx.procurementRequest.update({
+    return tx.procurementRequest.update({
       where: { id: requestId },
       data: { status: 'COMPLETED' },
     });
@@ -209,7 +232,7 @@ export const completeRequest = async (requestId) => {
 
 /* ================= UPLOAD PROOF ================= */
 export const uploadProof = async (data, userId) => {
-  const requestId = toNumber(data.requestId);
+  const requestId = toNumber(data.requestId, 'requestId');
 
   const request = await db.procurementRequest.findFirst({
     where: { id: requestId, deletedAt: null },
@@ -217,13 +240,13 @@ export const uploadProof = async (data, userId) => {
 
   if (!request) throw new Error('Request not found');
 
-  return await db.procurementProof.create({
+  return db.procurementProof.create({
     data: {
       requestId,
       type: data.type,
       fileUrl: data.fileUrl,
       description: data.description ?? null,
-      uploadedById: toNumber(userId),
+      uploadedById: toNumber(userId, 'userId'),
     },
   });
 };
@@ -240,13 +263,8 @@ export const getAllRequests = async ({
 
   const where = { deletedAt: null };
 
-  if (q) {
-    where.title = { contains: q };
-  }
-
-  if (status) {
-    where.status = status;
-  }
+  if (q) where.title = { contains: q };
+  if (status) where.status = status;
 
   const skip = (page - 1) * limit;
 
@@ -281,7 +299,7 @@ export const getAllRequests = async ({
 
 /* ================= SOFT DELETE ================= */
 export const deleteRequest = async (id) => {
-  id = toNumber(id);
+  id = toNumber(id, 'requestId');
 
   const request = await db.procurementRequest.findFirst({
     where: { id, deletedAt: null },
@@ -292,7 +310,7 @@ export const deleteRequest = async (id) => {
     throw new Error('Only draft requests can be deleted');
   }
 
-  return await db.procurementRequest.update({
+  return db.procurementRequest.update({
     where: { id },
     data: { deletedAt: new Date() },
   });

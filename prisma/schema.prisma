@@ -279,11 +279,14 @@ model ProcurementRequest {
 }
 
 model ProcurementItem {
-  id        Int     @id @default(autoincrement())
-  requestId Int
-  name      String
-  quantity  Int
-  unitCost  Decimal @db.Decimal(15, 2)
+  id         Int      @id @default(autoincrement())
+  requestId  Int
+
+  name        String
+  description String?          // ✅ ADDED
+  quantity    Int
+  unitCost    Decimal @db.Decimal(15, 2)
+  totalPrice  Decimal @db.Decimal(15, 2) // ✅ RECOMMENDED
 
   request ProcurementRequest @relation(fields: [requestId], references: [id])
 

@@ -1,12 +1,33 @@
 import * as procurementService from '../services/procurement.service.js';
 
+/* ================= HELPERS ================= */
+const toNumber = (v, name = 'id') => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) {
+    throw new Error(`Invalid ${name}`);
+  }
+  return n;
+};
+
 /* ================= CREATE REQUEST ================= */
 export const createRequest = async (req, res) => {
   try {
-    const data = await procurementService.createRequest(
-      req.body,
-      req.user.id
-    );
+    const userId = toNumber(req.user.id, 'userId');
+
+    const payload = {
+      title: req.body.title,
+      description: req.body.description ?? null,
+      amount: req.body.amount != null
+        ? toNumber(req.body.amount, 'amount')
+        : undefined, // service may auto-calc
+      allocationId: toNumber(req.body.allocationId, 'allocationId'),
+      vendorId: req.body.vendorId
+        ? toNumber(req.body.vendorId, 'vendorId')
+        : null,
+      items: req.body.items, // 🔥 service normalizes
+    };
+
+    const data = await procurementService.createRequest(payload, userId);
 
     return res.status(201).json({
       success: true,
@@ -24,10 +45,15 @@ export const createRequest = async (req, res) => {
 /* ================= UPDATE REQUEST ================= */
 export const updateRequest = async (req, res) => {
   try {
-    const data = await procurementService.updateRequest(
-      Number(req.params.id),
-      req.body
-    );
+    const id = toNumber(req.params.id, 'requestId');
+
+    const payload = {
+      title: req.body.title,
+      description: req.body.description ?? null,
+      amount: toNumber(req.body.amount, 'amount'),
+    };
+
+    const data = await procurementService.updateRequest(id, payload);
 
     return res.json({
       success: true,
@@ -45,9 +71,9 @@ export const updateRequest = async (req, res) => {
 /* ================= SUBMIT REQUEST ================= */
 export const submitRequest = async (req, res) => {
   try {
-    const data = await procurementService.submitRequest(
-      Number(req.params.id)
-    );
+    const id = toNumber(req.params.id, 'requestId');
+
+    const data = await procurementService.submitRequest(id);
 
     return res.json({
       success: true,
@@ -65,9 +91,12 @@ export const submitRequest = async (req, res) => {
 /* ================= APPROVE REQUEST ================= */
 export const approveRequest = async (req, res) => {
   try {
+    const requestId = toNumber(req.params.id, 'requestId');
+    const approverId = toNumber(req.user.id, 'approverId');
+
     const data = await procurementService.approveRequest(
-      Number(req.params.id),
-      req.user.id,
+      requestId,
+      approverId,
       req.body.remarks
     );
 
@@ -87,9 +116,12 @@ export const approveRequest = async (req, res) => {
 /* ================= REJECT REQUEST ================= */
 export const rejectRequest = async (req, res) => {
   try {
+    const requestId = toNumber(req.params.id, 'requestId');
+    const approverId = toNumber(req.user.id, 'approverId');
+
     const data = await procurementService.rejectRequest(
-      Number(req.params.id),
-      req.user.id,
+      requestId,
+      approverId,
       req.body.remarks
     );
 
@@ -109,9 +141,9 @@ export const rejectRequest = async (req, res) => {
 /* ================= MARK AS PURCHASED ================= */
 export const markPurchased = async (req, res) => {
   try {
-    const data = await procurementService.markPurchased(
-      Number(req.params.id)
-    );
+    const id = toNumber(req.params.id, 'requestId');
+
+    const data = await procurementService.markPurchased(id);
 
     return res.json({
       success: true,
@@ -129,9 +161,9 @@ export const markPurchased = async (req, res) => {
 /* ================= COMPLETE REQUEST ================= */
 export const completeRequest = async (req, res) => {
   try {
-    const data = await procurementService.completeRequest(
-      Number(req.params.id)
-    );
+    const id = toNumber(req.params.id, 'requestId');
+
+    const data = await procurementService.completeRequest(id);
 
     return res.json({
       success: true,
@@ -150,20 +182,19 @@ export const completeRequest = async (req, res) => {
 export const uploadProof = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'File is required',
-      });
+      throw new Error('File is required');
     }
 
+    const payload = {
+      requestId: toNumber(req.body.requestId, 'requestId'),
+      type: req.body.type,
+      description: req.body.description ?? null,
+      fileUrl: `/uploads/procurement/${req.file.filename}`,
+    };
+
     const data = await procurementService.uploadProof(
-      {
-        requestId: Number(req.body.requestId),
-        type: req.body.type,
-        description: req.body.description,
-        fileUrl: `/uploads/procurement/${req.file.filename}`,
-      },
-      req.user.id
+      payload,
+      toNumber(req.user.id, 'userId')
     );
 
     return res.status(201).json({
@@ -178,21 +209,15 @@ export const uploadProof = async (req, res) => {
     });
   }
 };
+
 /* ================= GET ALL REQUESTS ================= */
 export const getAllRequests = async (req, res) => {
   try {
-    const {
-      q = '',
-      status,
-      page = 1,
-      limit = 10,
-    } = req.query;
-
     const result = await procurementService.getAllRequests({
-      q,
-      status,
-      page: Number(page),
-      limit: Number(limit),
+      q: req.query.q ?? '',
+      status: req.query.status,
+      page: toNumber(req.query.page ?? 1, 'page'),
+      limit: toNumber(req.query.limit ?? 10, 'limit'),
     });
 
     return res.json({
@@ -207,10 +232,12 @@ export const getAllRequests = async (req, res) => {
   }
 };
 
-/* ================= DELETE REQUEST (SOFT) ================= */
+/* ================= DELETE REQUEST ================= */
 export const deleteRequest = async (req, res) => {
   try {
-    await procurementService.deleteRequest(Number(req.params.id));
+    const id = toNumber(req.params.id, 'requestId');
+
+    await procurementService.deleteRequest(id);
 
     return res.json({
       success: true,
